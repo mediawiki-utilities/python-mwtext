@@ -20,7 +20,7 @@ STRIP_WIKITEXT_REs = [
     r"&[a-z]+;",  # No entities
     r"<ref[^<]*<\/ref>",  # No references
     r"<[^>]*>",  # No tags
-    r"\[" + URL_RE + "\]",  # No external links without display text
+    r"\[" + URL_RE + r"\]",  # No external links without display text
     r"\{\{[^\}]+\}\}",  # No templates
     r"\{\|[^\}\|]+\|\}",  # No tables
     r"(^|\n);+[^\n]+",  # Definition lists terms
@@ -96,7 +96,7 @@ class WikitextPreprocessor:
 
     def __init__(self, forbidden_link_prefixes):
         forbidden_link_re = \
-            r"\[\[(" + "|".join(forbidden_link_prefixes) + "):[^\]]+\]\]"
+            r"\[\[(" + "|".join(forbidden_link_prefixes) + r"):[^\]]+\]\]"
         self.strip_regex = re.compile(
             "|".join(STRIP_WIKITEXT_REs + [forbidden_link_re]))
         self.replace_regexs = [(re.compile(p), r) for p, r in REPLACE_REs]

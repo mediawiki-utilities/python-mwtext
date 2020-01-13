@@ -63,6 +63,7 @@ def test_preprocessing_vietnamese():
          'một', 'tỷ', 'phú', 'với', 'tài', 'sản', 'anumber', 'tỷ', 'đô', 'la',
          'mỹ', 'thống', 'kê', 'năm', 'anumber']]
 
+
 def test_preprocessing_korean():
     forbidden_link_prefixes = [
         'category', 'image', 'file',
