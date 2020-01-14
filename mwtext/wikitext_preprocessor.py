@@ -96,7 +96,9 @@ class WikitextPreprocessor:
 
     def __init__(self, forbidden_link_prefixes):
         forbidden_link_re = \
-            r"\[\[(" + "|".join(forbidden_link_prefixes) + r"):[^\]]+\]\]"
+            r"\[\[(" + \
+            "|".join(forbidden_link_prefixes).lower() + \
+            r"):[^\]]+\]\]"
         self.strip_regex = re.compile(
             "|".join(STRIP_WIKITEXT_REs + [forbidden_link_re]))
         self.replace_regexs = [(re.compile(p), r) for p, r in REPLACE_REs]
@@ -113,18 +115,3 @@ class WikitextPreprocessor:
                 for match in re.finditer(self.token_regex, paragraph)]
             if len(paragraph_tokens) > 0:
                 yield paragraph_tokens
-
-    @classmethod
-    def from_session(cls, session):
-        doc = session.get(action="query", meta="siteinfo",
-                          siprop=["namespaces", "namespacealiases"],
-                          formatversion=2)
-        forbidden_link_prefixes = set()
-        for namespace in doc['query']['namespaces'].values():
-            if namespace['id'] in cls.FORBIDDEN_NAMESPACE_IDS:
-                forbidden_link_prefixes.add(namespace['name'].lower())
-                forbidden_link_prefixes.add(namespace['canonical'].lower())
-        for namespace in doc['query']['namespacealiases']:
-            if namespace['id'] in cls.FORBIDDEN_NAMESPACE_IDS:
-                forbidden_link_prefixes.add(namespace['alias'].lower())
-        return cls(forbidden_link_prefixes)
