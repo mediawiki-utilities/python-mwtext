@@ -49,5 +49,5 @@ def learn_vectors(input_path, params, output):
     output.write("{0} {1}\n".format(words, dimensions))
     for word in model.get_words():
         vector = model.get_word_vector(word)
-        output.write(" ".join([word] + (str(v) for v in vector)))
+        output.write(" ".join([word] + [str(v) for v in vector]))
         output.write("\n")

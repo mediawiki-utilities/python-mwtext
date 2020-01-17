@@ -145,7 +145,7 @@ def create_label_map(f, lang, label_field):
                 label2ids[label] = len(label2ids)
             label_ids.append(label2ids[label])
 
-        title2labels[title] = label_ids
+        title2labels[title] = set(label_ids)
 
     return title2labels, label2ids
 
