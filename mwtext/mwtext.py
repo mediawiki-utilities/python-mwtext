@@ -6,7 +6,9 @@ router = mwcli.Router(
     {'preprocess_text': "Converts an XML dump to preprocessed plaintext. " +
                         "One line per chunk.",
      'learn_vectors':   "Learn a set of word vectors from preprocessed " +
-                        "plaintext"}
+                        "plaintext",
+     'word2vec2gensim': "Converts word2vec format to gensim KeyedVector " +
+                        "binaries"}
 )
 
 main = router.main
