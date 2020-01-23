@@ -3,6 +3,10 @@
 
 dump_dir=/mnt/data/xmldatadumps/public
 dump_date=20191201
+vector_dimensions=50
+vector_params=--param 'dim=$(vector_dimensions)' --param 'loss="ova"'
+vocab_limit=100000
+vocab_str=100k
 
 
 preprocessed_article_text: \
@@ -13,11 +17,18 @@ preprocessed_article_text: \
 		datasets/viwiki-$(dump_date)-preprocessed_article_text.w_labels.txt
 
 learned_vectors: \
-		datasets/arwiki-$(dump_date)-learned_vectors.100_cell.300k.vec.bz2 \
-		datasets/cswiki-$(dump_date)-learned_vectors.100_cell.300k.vec.bz2 \
-		datasets/enwiki-$(dump_date)-learned_vectors.100_cell.300k.vec.bz2 \
-		datasets/kowiki-$(dump_date)-learned_vectors.100_cell.300k.vec.bz2 \
-		datasets/viwiki-$(dump_date)-learned_vectors.100_cell.300k.vec.bz2
+		datasets/arwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2 \
+		datasets/cswiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2 \
+		datasets/enwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2 \
+		datasets/kowiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2 \
+		datasets/viwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2
+
+gensim_vectors: \
+		datasets/arwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.$(vocab_str).kv \
+		datasets/cswiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.$(vocab_str).kv \
+		datasets/enwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.$(vocab_str).kv \
+		datasets/kowiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.$(vocab_str).kv \
+		datasets/viwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.$(vocab_str).kv
 
 datasets/enwiki.labeled_article_items.json.bz2:
 	wget https://analytics.wikimedia.org/published/datasets/archive/public-datasets/all/ores/topic/enwiki-20191201-labeled_article_items.json.bz2 -qO- > $@
@@ -31,16 +42,14 @@ datasets/arwiki-$(dump_date)-preprocessed_article_text.w_labels.txt: \
 	 --labels $^ \
 	 --debug > $@
 
-datasets/arwiki-$(dump_date)-learned_vectors.100_cell.vec.bz2: \
+datasets/arwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2: \
 		datasets/arwiki-$(dump_date)-preprocessed_article_text.w_labels.txt
-	./utility learn_vectors $^ \
-	 --param 'dim=100' \
-	 --param 'loss="ova"' | bzip2 -c > $@
+	./utility learn_vectors $^ $(vector_params) | bzip2 -c > $@
 
-datasets/arwiki-$(dump_date)-learned_vectors.100_cell.300k.vec.bz2: \
-		datasets/arwiki-$(dump_date)-learned_vectors.100_cell.vec.bz2
-	(echo "300000 100"; \
-	 bzcat $^ | tail -n+2 | head -n 300000) | bzip2 -c > $@
+datasets/arwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.$(vocab_str).kv: \
+		datasets/arwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2
+	./utility word2vec2gensim $^ $@ --limit=$(vocab_limit)
+
 
 datasets/cswiki-$(dump_date)-preprocessed_article_text.w_labels.txt: \
 		datasets/enwiki.labeled_article_items.json.bz2
@@ -50,16 +59,13 @@ datasets/cswiki-$(dump_date)-preprocessed_article_text.w_labels.txt: \
 	 --labels $^ \
 	 --debug > $@
 
-datasets/cswiki-$(dump_date)-learned_vectors.100_cell.vec.bz2: \
+datasets/cswiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2: \
 		datasets/cswiki-$(dump_date)-preprocessed_article_text.w_labels.txt
-	./utility learn_vectors $^ \
-	 --param 'dim=100' \
-	 --param 'loss="ova"' | bzip2 -c > $@
+	./utility learn_vectors $^ $(vector_params) | bzip2 -c > $@
 
-datasets/cswiki-$(dump_date)-learned_vectors.100_cell.300k.vec.bz2: \
-		datasets/cswiki-$(dump_date)-learned_vectors.100_cell.vec.bz2
-	(echo "300000 100"; \
-	 bzcat $^ | tail -n+2 | head -n 300000) | bzip2 -c > $@
+datasets/cswiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.$(vocab_str).kv: \
+		datasets/cswiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2
+	./utility word2vec2gensim $^ $@ --limit=$(vocab_limit)
 
 datasets/enwiki-$(dump_date)-preprocessed_article_text.w_labels.txt: \
 		datasets/enwiki.labeled_article_items.json.bz2
@@ -69,16 +75,13 @@ datasets/enwiki-$(dump_date)-preprocessed_article_text.w_labels.txt: \
 	 --labels $^ \
 	 --debug > $@
 
-datasets/enwiki-$(dump_date)-learned_vectors.100_cell.vec.bz2: \
+datasets/enwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2: \
 		datasets/enwiki-$(dump_date)-preprocessed_article_text.w_labels.txt
-	./utility learn_vectors $^ \
-	 --param 'dim=100' \
-	 --param 'loss="ova"' | bzip2 -c > $@
+	./utility learn_vectors $^ $(vector_params) | bzip2 -c > $@
 
-datasets/enwiki-$(dump_date)-learned_vectors.100_cell.300k.vec.bz2: \
-		datasets/enwiki-$(dump_date)-learned_vectors.100_cell.vec.bz2
-	(echo "300000 100"; \
-	 bzcat $^ | tail -n+2 | head -n 300000) | bzip2 -c > $@
+datasets/enwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.$(vocab_str).kv: \
+		datasets/enwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2
+	./utility word2vec2gensim $^ $@ --limit=$(vocab_limit)
 
 datasets/kowiki-$(dump_date)-preprocessed_article_text.w_labels.txt: \
 		datasets/enwiki.labeled_article_items.json.bz2
@@ -88,16 +91,14 @@ datasets/kowiki-$(dump_date)-preprocessed_article_text.w_labels.txt: \
 	 --labels $^ \
 	 --debug > $@
 
-datasets/kowiki-$(dump_date)-learned_vectors.100_cell.vec.bz2: \
+datasets/kowiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2: \
 		datasets/kowiki-$(dump_date)-preprocessed_article_text.w_labels.txt
-	./utility learn_vectors $^ \
-	 --param 'dim=100' \
-	 --param 'loss="ova"' | bzip2 -c > $@
+	./utility learn_vectors $^ $(vector_params) | bzip2 -c > $@
 
-datasets/kowiki-$(dump_date)-learned_vectors.100_cell.300k.vec.bz2: \
-		datasets/kowiki-$(dump_date)-learned_vectors.100_cell.vec.bz2
-	(echo "300000 100"; \
-	 bzcat $^ | tail -n+2 | head -n 300000) | bzip2 -c > $@
+datasets/kowiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.$(vocab_str).kv: \
+		datasets/kowiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2
+	./utility word2vec2gensim $^ $@ --limit=$(vocab_limit)
+
 
 datasets/viwiki-$(dump_date)-preprocessed_article_text.w_labels.txt: \
 		datasets/enwiki.labeled_article_items.json.bz2
@@ -107,13 +108,10 @@ datasets/viwiki-$(dump_date)-preprocessed_article_text.w_labels.txt: \
 	 --labels $^ \
 	 --debug > $@
 
-datasets/viwiki-$(dump_date)-learned_vectors.100_cell.vec.bz2: \
+datasets/viwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2: \
 		datasets/viwiki-$(dump_date)-preprocessed_article_text.w_labels.txt
-	./utility learn_vectors $^ \
-	 --param 'dim=100' \
-	 --param 'loss="ova"' | bzip2 -c > $@
+	./utility learn_vectors $^ $(vector_params) | bzip2 -c > $@
 
-datasets/viwiki-$(dump_date)-learned_vectors.100_cell.300k.vec.bz2: \
-		datasets/viwiki-$(dump_date)-learned_vectors.100_cell.vec.bz2
-	(echo "300000 100"; \
-	 bzcat $^ | tail -n+2 | head -n 300000) | bzip2 -c > $@
+datasets/viwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.$(vocab_str).kv: \
+		datasets/viwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2
+	./utility word2vec2gensim $^ $@ --limit=$(vocab_limit)
