@@ -139,11 +139,11 @@ def create_label_map(f, lang, label_field):
             title = ob['sitelinks'][lang]
 
         # Get labels
-        label_ids = []
+        label_ids = set()
         for label in ob[label_field]:
             if label not in label2ids:
                 label2ids[label] = len(label2ids)
-            label_ids.append(label2ids[label])
+            label_ids.add(label2ids[label])
 
         title2labels[title] = set(label_ids)
 
