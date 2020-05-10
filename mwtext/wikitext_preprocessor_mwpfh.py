@@ -77,7 +77,7 @@ class WikitextPreprocessorMwpfh:
 
     def _parse_external_link_node(self, node):
         if not node.title:
-            return parse_state
+            return
         text = node.title.strip_code()
         self._current_text += self.preprocess_func(text)
 
@@ -93,7 +93,7 @@ class WikitextPreprocessorMwpfh:
             title = title[1:]
 
         if not title:
-            return parse_state
+            return
 
         # normalize
         title = title[0].upper() + title[1:].replace(' ', '_')
@@ -117,7 +117,6 @@ class WikitextPreprocessorMwpfh:
         self._current_text += text
         end = len(self._current_text)
         self._current_links.append((title, text, start, end))
-
 
     def _parse_text_node(self, node):
 
