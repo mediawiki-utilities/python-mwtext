@@ -104,7 +104,10 @@ class WikitextPreprocessorMwpfh:
         if node.text:
             text = node.text.strip_code()
             # e.g. https://en.wikipedia.org/wiki/Wikipedia:Extended_image_syntax
-            if any([title.lower().startswith(prefix) for prefix in self.forbidden_link_prefixes]):
+            if any([
+                title.lower().startswith(prefix)
+                for prefix in self.forbidden_link_prefixes
+            ]):
                 return
         else:
             text = node.title.strip_code()
@@ -143,16 +146,19 @@ class WikitextPreprocessorMwpfh:
 
         for node_idx, node in enumerate(wikicode.nodes):
 
-            if isinstance(node, mwparserfromhell.nodes.Text) and not self._skipping_section:
-                paragraphs_local = self._parse_text_node(node)
-                paragraphs.extend(paragraphs_local)
-            elif isinstance(node, mwparserfromhell.nodes.Wikilink) and not self._skipping_section:
-                self._parse_wikilink_node(node)
-            elif isinstance(node, mwparserfromhell.nodes.ExternalLink) and not self._skipping_section:
-                self._parse_external_link_node(node)
-            elif isinstance(node, mwparserfromhell.nodes.Tag) and not self._skipping_section:
-                self._parse_tag_node(node)
-            elif isinstance(node, mwparserfromhell.nodes.Heading):
+            if not self._skipping_section:
+                if isinstance(node, mwparserfromhell.nodes.Text):
+                    paragraphs_local = self._parse_text_node(node)
+                    paragraphs.extend(paragraphs_local)
+                elif isinstance(node, mwparserfromhell.nodes.Wikilink):
+                    self._parse_wikilink_node(node)
+                elif isinstance(node, mwparserfromhell.nodes.ExternalLink):
+                    self._parse_external_link_node(node)
+                elif isinstance(node, mwparserfromhell.nodes.Tag):
+                    self._parse_tag_node(node)
+
+            if isinstance(node, mwparserfromhell.nodes.Heading):
+                # this is the only place that can change _skipping_section
                 self._parse_heading_node(node)
 
         if self._current_text and not self._current_text.isspace():

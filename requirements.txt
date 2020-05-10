@@ -1,3 +1,4 @@
 mwxml
 mwcli
 mwapi
+mwparserfromhell>=0.5,<0.6
