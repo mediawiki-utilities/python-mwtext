@@ -2,7 +2,9 @@
 Parse the wikitext representation of a Wikipedia page into paragraph objects.
 
 The goal of this module is to parse wikitext into plaintext in a way that preserves
-information about link offsets and section information.
+information about link offsets and section information.  The default settings are
+geared towards extracting the offsets for every internal link (i.e. links that lead
+to other main space pages in the same wiki).
 
 The actual parsing relies on the MediaWiki Parser From Hell.  Construction of the
 paragraph objects is heavily inspired by the approach taken in Wikipedia2Vec
@@ -11,9 +13,11 @@ paragraph objects is heavily inspired by the approach taken in Wikipedia2Vec
  * https://github.com/wikipedia2vec/wikipedia2vec
 
 
-1) add anchor to text, add link to links
-2) add anchor to text, dont add link to links
-3)
+known issues:
+
+ * links inside tags are put into text stream but not link list
+   e.g. ''[[Photometria]]''
+
 
 """
 import logging
@@ -37,9 +41,9 @@ FORBIDDEN_SECTIONS = [
 ]
 
 FORBIDDEN_WIKILINK_PREFIXES = [
-    ":",       # used mostly for image, category, or interlanguage links
     "file:",
     "image:",
+    "category:",
 ]
 
 ALLOWED_TAGS = [
@@ -173,7 +177,8 @@ class WikitextPreprocessorMwpfh:
         # [[#Links and URLs]]  (link to section in current page)
         if target.startswith("#"):
             anchor = target[1:]
-            return (True, True, target, anchor)
+            return (True, False, target, anchor)
+
 
         # remove section specific component
         target = target[:target.index("#")] if "#" in target else target
@@ -188,7 +193,9 @@ class WikitextPreprocessorMwpfh:
         if self.canonicalize_wikilink_targets:
             target = target[0].upper() + target[1:].replace(" ", "_")
 
-        return (True, True, target, anchor)
+        add_text = True
+        add_link = ":" not in target
+        return (add_text, add_link, target, anchor)
 
     def _parse_wikilink_node(self, node: Wikilink) -> None:
         """Parse wikilink nodes.
