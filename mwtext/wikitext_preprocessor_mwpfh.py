@@ -224,12 +224,12 @@ class WikitextPreprocessorMwpfh:
         self._reset()
         wikicode = mwparserfromhell.parse(text)
         paragraphs = []
-        do_expensive_logging = logger.isEnabledFor(logging.WARN)
+        do_expensive_logging = logger.isEnabledFor(logging.DEBUG)
 
         for node_idx, node in enumerate(wikicode.nodes):
 
             if do_expensive_logging:
-                logger.warning("node=%s, %s", type(node), repr(node))
+                logger.debug("node=%s, %s", type(node), repr(node))
 
             if not self._skipping_section:
                 if isinstance(node, mwparserfromhell.nodes.Text):
