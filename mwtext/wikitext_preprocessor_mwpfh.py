@@ -5,7 +5,7 @@ The goal of this module is to parse wikitext into plaintext in a way that preser
 information about link offsets and section information.
 
 The actual parsing relies on the MediaWiki Parser From Hell.  Construction of the
-paragraph objects is heavily inspired by Wikipedia2Vec
+paragraph objects is heavily inspired by the approach taken in Wikipedia2Vec
 
  * https://github.com/earwig/mwparserfromhell
  * https://github.com/wikipedia2vec/wikipedia2vec
