@@ -10,6 +10,11 @@ paragraph objects is heavily inspired by the approach taken in Wikipedia2Vec
  * https://github.com/earwig/mwparserfromhell
  * https://github.com/wikipedia2vec/wikipedia2vec
 
+
+1) add anchor to text, add link to links
+2) add anchor to text, dont add link to links
+3)
+
 """
 import logging
 from typing import Callable, Iterable, List, Optional, Tuple
@@ -32,7 +37,7 @@ FORBIDDEN_SECTIONS = [
 ]
 
 FORBIDDEN_WIKILINK_PREFIXES = [
-    "#",       # self links
+#    "#",       # self links
     ":",       # used mostly for image, category, or interlanguage links
     "file:",
     "image:",
@@ -44,7 +49,7 @@ ALLOWED_TAGS = [
     "u",
 ]
 
-WikilinkParser = Callable[[Wikilink], Tuple[bool, str, str]]
+WikilinkParser = Callable[[Wikilink], Tuple[bool, bool, str, str]]
 
 
 class WikitextPreprocessorMwpfh:
@@ -63,11 +68,14 @@ class WikitextPreprocessorMwpfh:
         canonicalize_wikilink_targets (bool): if True, uppercase the first character
             of link targets and replace spaces with underscores (to match titles
             in the SQL dumps)
-        custom_wikilink_parser (Callable[[Wikilink], Tuple[bool, str, str]]):
-            function that takes in a Wikilink object and returns a 3-tuple
-            (keep, target, anchor) where keep determines if the link is recorded,
-            target is the target page title to use and anchor is the anchor text
-            to put into the text stream.  Uses _default_wikilink_parser if None.
+        custom_wikilink_parser (Callable[[Wikilink], Tuple[bool, bool, str, str]]):
+            function that takes in a Wikilink object and returns a 4-tuple
+            (add_link, add_text, target, anchor) where,
+              * add_link: determines if link is added to link list
+              * add_text: determines if anchor is added to text stream
+              * target: target page title to use
+              * anchor: anchor text to use
+            Uses _default_wikilink_parser if None.
     """
     def __init__(
         self,
@@ -140,24 +148,30 @@ class WikitextPreprocessorMwpfh:
         text = node.title.strip_code().strip()
         self._current_text += text
 
-    def _default_wikilink_parser(self, node: Wikilink) -> Tuple[bool, str, str]:
-        """Produce (keep, target, anchor) tuple from Wikilink node.
+    def _default_wikilink_parser(self, node: Wikilink) -> Tuple[bool, bool, str, str]:
+        """Produce (add_text, add_link, target, anchor) tuple from Wikilink node.
 
-        Take a Wikilink node and decide to keep or not.  If it's kept, produce
-        a target (target page title) and anchor (anchor text).  The target will
-        be recorded in the wikilinks attribute of a paragraph and the anchor
-        will be added to the text stream.
+        The tuple entries mean the following,
+          * add_text: add the anchor text to the text stream?
+          * add_link: add the target page title and anchor text to the link list?
+          * target: target page title
+          * anchor: link anchor text
         """
         target = node.title.strip_code().strip()
 
         if len(target) == 0:
-            return (False, "", "")
+            return (False, False, "", "")
 
         if any([
             target.lower().startswith(prefix)
             for prefix in self.forbidden_wikilink_prefixes
         ]):
-            return (False, "", "")
+            return (False, False, "", "")
+
+        # [[#Links and URLs]]  (link to section in current page)
+        if target.startswith("#"):
+            anchor = target[1:]
+            return (True, True, target, anchor)
 
         # remove section specific component
         target = target[:target.index("#")] if "#" in target else target
@@ -172,7 +186,7 @@ class WikitextPreprocessorMwpfh:
         if self.canonicalize_wikilink_targets:
             target = target[0].upper() + target[1:].replace(" ", "_")
 
-        return (True, target, anchor)
+        return (True, True, target, anchor)
 
     def _parse_wikilink_node(self, node: Wikilink) -> None:
         """Parse wikilink nodes.
@@ -196,11 +210,13 @@ class WikitextPreprocessorMwpfh:
         else:
             wikilink_parser = self._default_wikilink_parser
 
-        keep, target, anchor = wikilink_parser(node)
-        if keep:
+        add_text, add_link, target, anchor = wikilink_parser(node)
+
+        if add_text:
             start = len(self._current_text)
             self._current_text += anchor
             end = len(self._current_text)
+        if add_link:
             self._current_wikilinks.append((target, anchor, start, end))
 
     def _parse_text_node(self, node: Text) -> List[dict]:

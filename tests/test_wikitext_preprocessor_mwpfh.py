@@ -16,6 +16,7 @@ WIKILINK_TEST_FIXTURES = {
     "seattle|": "[[Seattle, Washington|]]",
     "village|": "[[Wikipedia:Village pump|]]",
     "style|": "[[Wikipedia:Manual of Style#Links|]]",
+    "#self": "[[#self]]",
 }
 
 WIKILINK_EXPECTED_TEXT = {
@@ -29,6 +30,7 @@ WIKILINK_EXPECTED_TEXT = {
     "seattle|": "Seattle, Washington",
     "village|": "Village pump",
     "style|": "Manual of Style",
+    "#self": "self",
 }
 
 WIKILINK_EXPECTED_LINKS = {
@@ -42,6 +44,7 @@ WIKILINK_EXPECTED_LINKS = {
     "seattle|": [("Seattle, Washington", "Seattle, Washington", 0, 19)],
     "village|": [('Wikipedia:Village pump', 'Village pump', 0, 12)],
     "style|": [('Wikipedia:Manual of Style', 'Manual of Style', 0, 15)],
+    "#self": [('#self', 'self', 0, 4)],
 }
 
 
