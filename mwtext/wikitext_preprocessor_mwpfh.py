@@ -61,7 +61,8 @@ class WikitextPreprocessorMwpfh:
             token for tags that are not in the `allowed_tags` list.  For
             example a <table> token to represent all the markup of a table.
         canonicalize_wikilink_targets (bool): if True, uppercase the first character
-            of link targets and replace spaces with underscores
+            of link targets and replace spaces with underscores (to match titles
+            in the SQL dumps)
         custom_wikilink_parser (Callable[[Wikilink], Tuple[bool, str, str]]):
             function that takes in a Wikilink object and returns a 3-tuple
             (keep, target, anchor) where keep determines if the link is recorded,
@@ -163,7 +164,7 @@ class WikitextPreprocessorMwpfh:
 
         anchor = node.text.strip_code().strip() if node.text is not None else target
 
-        # normalize (TODO: check the format the SQL dumps use)
+        # optinally normalize target page title to match SQL dump format
         if self.canonicalize_wikilink_targets:
             target = target[0].upper() + target[1:].replace(" ", "_")
 
