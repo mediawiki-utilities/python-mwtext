@@ -37,7 +37,6 @@ FORBIDDEN_SECTIONS = [
 ]
 
 FORBIDDEN_WIKILINK_PREFIXES = [
-#    "#",       # self links
     ":",       # used mostly for image, category, or interlanguage links
     "file:",
     "image:",
@@ -148,7 +147,10 @@ class WikitextPreprocessorMwpfh:
         text = node.title.strip_code().strip()
         self._current_text += text
 
-    def _default_wikilink_parser(self, node: Wikilink) -> Tuple[bool, bool, str, str]:
+    def _default_wikilink_parser(
+            self,
+            node: Wikilink
+    ) -> Tuple[bool, bool, str, str]:
         """Produce (add_text, add_link, target, anchor) tuple from Wikilink node.
 
         The tuple entries mean the following,
