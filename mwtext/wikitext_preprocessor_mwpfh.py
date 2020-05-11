@@ -135,7 +135,7 @@ class WikitextPreprocessorMwpfh:
 
         Include the title of external links in the text stream.
         """
-        if node.title is None:
+        if not node.title:
             return
         text = node.title.strip_code().strip()
         self._current_text += text
@@ -162,7 +162,11 @@ class WikitextPreprocessorMwpfh:
         # remove section specific component
         target = target[:target.index("#")] if "#" in target else target
 
-        anchor = node.text.strip_code().strip() if node.text is not None else target
+        # cover node.text = None and node.text = ""
+        anchor = node.text.strip_code().strip() if node.text else target
+
+        # remove namespace from anchor
+        anchor = anchor[anchor.rindex(":") + 1:] if ":" in anchor else anchor
 
         # optinally normalize target page title to match SQL dump format
         if self.canonicalize_wikilink_targets:
@@ -178,6 +182,10 @@ class WikitextPreprocessorMwpfh:
             node.title = "target_page", node.text = None
           [[target_page|anchor_text]]
             node.title = "target_page", node.text = "anchor_text"
+
+        funny cases:
+          [[target_page|]]
+            node.title = "target_page", node.text = ""
 
         docs on link structure: https://en.wikipedia.org/wiki/Help:Link
         """
