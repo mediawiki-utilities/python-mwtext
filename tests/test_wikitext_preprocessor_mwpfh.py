@@ -8,12 +8,10 @@ from mwtext import WikitextPreprocessorMwpfh
 WIKILINK_TEST_FIXTURES = {
     "basic": "[[target_title]]",
     "rename": "[[target_title|anchor_text]]",
-#
     "kingdom": "[[kingdom (biology)]]",
     "seattle": "[[Seattle, Washington]]",
     "village": "[[Wikipedia:Village pump]]",
     "style": "[[Wikipedia:Manual of Style#Links]]",
-#
     "kingdom|": "[[kingdom (biology)|]]",
     "seattle|": "[[Seattle, Washington|]]",
     "village|": "[[Wikipedia:Village pump|]]",
@@ -23,12 +21,10 @@ WIKILINK_TEST_FIXTURES = {
 WIKILINK_EXPECTED_TEXT = {
     "basic": "target_title",
     "rename": "anchor_text",
-#
     "kingdom": "kingdom (biology)",
     "seattle": "Seattle, Washington",
     "village": "Village pump",
     "style": "Manual of Style",
-#
     "kingdom|": "kingdom (biology)",
     "seattle|": "Seattle, Washington",
     "village|": "Village pump",
@@ -38,12 +34,10 @@ WIKILINK_EXPECTED_TEXT = {
 WIKILINK_EXPECTED_LINKS = {
     "basic": [("target_title", "target_title", 0, 12)],
     "rename": [("target_title", "anchor_text", 0, 11)],
-#
     "kingdom": [("kingdom (biology)", "kingdom (biology)", 0, 17)],
     "seattle": [("Seattle, Washington", "Seattle, Washington", 0, 19)],
     "village": [('Wikipedia:Village pump', 'Village pump', 0, 12)],
     "style": [('Wikipedia:Manual of Style', 'Manual of Style', 0, 15)],
-#
     "kingdom|": [("kingdom (biology)", "kingdom (biology)", 0, 17)],
     "seattle|": [("Seattle, Washington", "Seattle, Washington", 0, 19)],
     "village|": [('Wikipedia:Village pump', 'Village pump', 0, 12)],
