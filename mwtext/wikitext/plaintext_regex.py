@@ -91,7 +91,7 @@ WORD_OR_CJK_RE = re.compile(WORD_RE + "|" + CJK_RE)
 PARAGRAPH_SPLIT_RE = r'(\n|\n\r|\r\n)\s*(\n|\n\r|\r\n)+'
 
 
-class WikitextPreprocessor:
+class WikitextToPlaintextRegexTransformer:
     FORBIDDEN_NAMESPACE_IDS = (6, 14)
 
     def __init__(self, forbidden_link_prefixes):

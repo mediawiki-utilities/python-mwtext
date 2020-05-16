@@ -1,10 +1,10 @@
-from mwtext import WikitextPreprocessor
+from mwtext import WikitextToPlaintextRegexTransformer
 
 
 def test_preprocessing_english():
     forbidden_link_prefixes = ['category', 'image', 'file']
 
-    wtpp = WikitextPreprocessor(forbidden_link_prefixes)
+    wtpp = WikitextToPlaintextRegexTransformer(forbidden_link_prefixes)
     text = """
 {{Infobox thing
  | derp = herp
@@ -27,7 +27,7 @@ def test_preprocessing_vietnamese():
         'category', 'image', 'file',
         'tập tin', 'thể loại']
 
-    wtpp = WikitextPreprocessor(forbidden_link_prefixes)
+    wtpp = WikitextToPlaintextRegexTransformer(forbidden_link_prefixes)
     text = """
 {{Infobox actor
 |name = George Lucas
@@ -69,7 +69,7 @@ def test_preprocessing_korean():
         'category', 'image', 'file',
         '파일', '분류', '그림']
 
-    wtpp = WikitextPreprocessor(forbidden_link_prefixes)
+    wtpp = WikitextToPlaintextRegexTransformer(forbidden_link_prefixes)
     text = """
 {{영화인 정보
 |이름       = 조지 루카스
@@ -118,7 +118,7 @@ def test_preprocessing_arabic():
         'category', 'image', 'file',
         'تصنيف', 'ملف', 'صورة']
 
-    wtpp = WikitextPreprocessor(forbidden_link_prefixes)
+    wtpp = WikitextToPlaintextRegexTransformer(forbidden_link_prefixes)
     text = """
 {{معلومات ممثل
 | الاسم              = جورج لوكاس

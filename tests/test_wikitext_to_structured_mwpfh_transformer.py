@@ -3,13 +3,13 @@ Inspiration for test cases drawn from,
 
  * https://en.wikipedia.org/wiki/Help:Wikitext#Links_and_URLs
 """
-from mwtext import WikitextPreprocessorMwpfh
+from mwtext import WikitextToStructuredMwpfhTransformer
 from .mwpfh_wikilink_fixtures import WIKILINK_TEST_FIXTURES
 
 
 def test_wikilinks_only():
     for test_name, test_data in WIKILINK_TEST_FIXTURES.items():
-        wtpp = WikitextPreprocessorMwpfh()
+        wtpp = WikitextToStructuredMwpfhTransformer()
         parsed = wtpp.process(test_data["wikitext"])
         expected = [
             {

@@ -55,7 +55,7 @@ ALLOWED_TAGS = [
 WikilinkParser = Callable[[Wikilink], Tuple[bool, bool, str, str]]
 
 
-class WikitextPreprocessorMwpfh:
+class WikitextToStructuredMwpfhTransformer:
 
     """Wikitext Preprocessor using MediaWiki Parser From Hell
 
