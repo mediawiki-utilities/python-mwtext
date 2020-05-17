@@ -69,9 +69,6 @@ class WikitextToStructuredMwpfhTransformer:
         include_disallowed_tag_tokens (bool): if True, include a single
             token for tags that are not in the `allowed_tags` list.  For
             example a <table> token to represent all the markup of a table.
-        canonicalize_wikilink_targets (bool): if True, uppercase the first character
-            of link targets and replace spaces with underscores (to match titles
-            in the SQL dumps)
         custom_wikilink_parser (Callable[[Wikilink], Tuple[bool, bool, str, str]]):
             function that takes in a Wikilink object and returns a 4-tuple
             (add_link, add_text, target, anchor) where,
@@ -87,14 +84,12 @@ class WikitextToStructuredMwpfhTransformer:
         forbidden_sections: Iterable[str] = FORBIDDEN_SECTIONS,
         allowed_tags: Iterable[str] = ALLOWED_TAGS,
         include_disallowed_tag_tokens: bool = False,
-        canonicalize_wikilink_targets: bool = False,
         custom_wikilink_parser: Optional[WikilinkParser] = None,
     ) -> None:
         self.forbidden_wikilink_prefixes = forbidden_wikilink_prefixes
         self.forbidden_sections = forbidden_sections
         self.allowed_tags = allowed_tags
         self.include_disallowed_tag_tokens = include_disallowed_tag_tokens
-        self.canonicalize_wikilink_targets = canonicalize_wikilink_targets
         self.custom_wikilink_parser = custom_wikilink_parser
         self._reset()
 
@@ -189,9 +184,8 @@ class WikitextToStructuredMwpfhTransformer:
         # remove namespace from anchor
         anchor = anchor[anchor.rindex(":") + 1:] if ":" in anchor else anchor
 
-        # optinally normalize target page title to match SQL dump format
-        if self.canonicalize_wikilink_targets:
-            target = target[0].upper() + target[1:].replace(" ", "_")
+        # format page titles to match SQL dump format
+        target = target[0].upper() + target[1:].replace(" ", "_")
 
         add_text = True
         add_link = ":" not in target
@@ -255,11 +249,16 @@ class WikitextToStructuredMwpfhTransformer:
 
         TODO: make this better
         """
-        return [
+        category_titles = [
             el[len("[[Category:"):-2]
             for el in wikicode.filter_wikilinks()
             if el.startswith("[[Category:")
         ]
+        category_titles = [
+            title[0].upper() + title[1:].replace(" ", "_")
+            for title in category_titles
+        ]
+        return category_titles
 
     def _has_disambiguation_template(self, wikitext: str) -> bool:
         """Check for templates indicating disambiguation page status.
@@ -331,7 +330,7 @@ class WikitextToStructuredMwpfhTransformer:
         return {
             "paragraphs": paragraphs,
             "categories": self._default_filter_categories(wikicode),
-            "is_disambiguation": self._has_disambiguation_template(wikitext),
+            "has_disambiguation_template": self._has_disambiguation_template(wikitext),
         }
 
 

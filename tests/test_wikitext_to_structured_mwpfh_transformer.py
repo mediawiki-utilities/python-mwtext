@@ -11,6 +11,11 @@ def test_wikilinks_only():
     for test_name, test_data in WIKILINK_TEST_FIXTURES.items():
         transformer = WikitextToStructuredMwpfhTransformer()
         structured = transformer.process(test_data["wikitext"])
+
+        actual = {
+            "paragraphs": structured["paragraphs"],
+            "categories": structured["categories"],
+        }
         expected = {
             "paragraphs": [
                 {
@@ -21,6 +26,5 @@ def test_wikilinks_only():
                 },
             ],
             "categories": test_data["categories"],
-            "is_disambiguation": False,
         }
-        assert structured == expected
+        assert actual == expected

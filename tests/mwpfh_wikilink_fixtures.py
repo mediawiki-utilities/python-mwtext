@@ -1,26 +1,26 @@
 WIKILINK_TEST_FIXTURES = {
     "basic": {
-        "wikitext": "[[target_title]]",
-        "plaintext": "target_title",
-        "wikilinks": [("target_title", "target_title", 0, 12)],
+        "wikitext": "[[target title]]",
+        "plaintext": "target title",
+        "wikilinks": [("Target_title", "target title", 0, 12)],
         "categories": [],
     },
     "rename": {
-        "wikitext": "[[target_title|anchor_text]]",
-        "plaintext": "anchor_text",
-        "wikilinks": [("target_title", "anchor_text", 0, 11)],
+        "wikitext": "[[target title|anchor text]]",
+        "plaintext": "anchor text",
+        "wikilinks": [("Target_title", "anchor text", 0, 11)],
         "categories": [],
     },
     "kingdom": {
         "wikitext": "[[kingdom (biology)]]",
         "plaintext": "kingdom (biology)",
-        "wikilinks": [("kingdom (biology)", "kingdom (biology)", 0, 17)],
+        "wikilinks": [("Kingdom_(biology)", "kingdom (biology)", 0, 17)],
         "categories": [],
     },
     "seattle": {
         "wikitext": "[[Seattle, Washington]]",
         "plaintext": "Seattle, Washington",
-        "wikilinks": [("Seattle, Washington", "Seattle, Washington", 0, 19)],
+        "wikilinks": [("Seattle,_Washington", "Seattle, Washington", 0, 19)],
         "categories": [],
     },
     "village": {
@@ -44,13 +44,13 @@ WIKILINK_TEST_FIXTURES = {
     "kingdom|": {
         "wikitext": "[[kingdom (biology)|]]",
         "plaintext": "kingdom (biology)",
-        "wikilinks": [("kingdom (biology)", "kingdom (biology)", 0, 17)],
+        "wikilinks": [("Kingdom_(biology)", "kingdom (biology)", 0, 17)],
         "categories": [],
     },
     "seattle|": {
         "wikitext": "[[Seattle, Washington|]]",
         "plaintext": "Seattle, Washington",
-        "wikilinks": [("Seattle, Washington", "Seattle, Washington", 0, 19)],
+        "wikilinks": [("Seattle,_Washington", "Seattle, Washington", 0, 19)],
         "categories": [],
     },
     "village|": {
@@ -80,20 +80,20 @@ WIKILINK_TEST_FIXTURES = {
     "micro-": {
         "wikitext": "[[micro-]]second",
         "plaintext": "micro-second",
-        "wikilinks": [('micro-', 'micro-', 0, 6)],
+        "wikilinks": [('Micro-', 'micro-', 0, 6)],
         "categories": [],
     },
     "micro-nowiki": {
         "wikitext": "[[micro-]]<nowiki />second",
         "plaintext": "micro-second",
-        "wikilinks": [('micro-', 'micro-', 0, 6)],
+        "wikilinks": [('Micro-', 'micro-', 0, 6)],
         "categories": [],
     },
     "category": {
         "wikitext": "a [[Category:Vowel letters]]",
         "plaintext": "a ",
         "wikilinks": [],
-        "categories": ["Vowel letters"],
+        "categories": ["Vowel_letters"],
     },
     ":category": {
         "wikitext": "a [[:Category:Vowel letters]]",
