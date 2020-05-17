@@ -108,7 +108,7 @@ WIKILINK_TEST_FIXTURES = {
         "categories": [],
     },
     "nested_file": {
-        "wikitext": "a [[File:Albedo-e hg.svg|thumb|upright=1.3|The percentage of [[diffuse reflection|diffusely reflected]] [[sunlight]] relative to various surface conditions]]",
+        "wikitext": "a [[File:Albedo-e hg.svg|thumb|upright=1.3|The percentage of [[diffuse reflection|diffusely reflected]] [[sunlight]] relative to various surface conditions]]", # noqa
         "plaintext": "a ",
         "wikilinks": [],
         "categories": [],

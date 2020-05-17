@@ -180,7 +180,6 @@ class WikitextToStructuredMwpfhTransformer:
             anchor = target[1:]
             return (True, False, target, anchor)
 
-
         # remove section specific component
         target = target[:target.index("#")] if "#" in target else target
 
@@ -267,16 +266,19 @@ class WikitextToStructuredMwpfhTransformer:
 
         Disambiguation templates come in several varieties
         e.g. {{disambiguation}}, {{disambiguation|geo}}, ...
-        Also, links inside a page can be marked with a {{disambiguation needed|date=...}}
+        Also, links inside a page can be marked with a
+        {{disambiguation needed|date=...}}
         without marking the page as a disambigution page so we do a quick
         and dirty check for the opening part of a disambiguation template.
 
-        Another way to check for disambiguation page status (and other non natural text
-        pages) is to use wikidata to see if the page is associated with a wikidata item
-        that is an instance of https://www.wikidata.org/wiki/Q17442446 or any of its
-        subclasses.
+        Another way to check for disambiguation page status (and other non natural
+        text pages) is to use wikidata to see if the page is associated with a
+        wikidata item that is an instance of https://www.wikidata.org/wiki/Q17442446
+        or any of its subclasses.
         """
-        template_bool = "{{disambiguation|" in wikitext or "{{disambiguation}}" in wikitext
+        template_bool = (
+            "{{disambiguation|" in wikitext or
+            "{{disambiguation}}" in wikitext)
         return template_bool
 
     def process(self, wikitext: str) -> dict:
