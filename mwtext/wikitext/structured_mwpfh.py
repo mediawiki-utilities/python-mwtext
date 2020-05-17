@@ -24,6 +24,7 @@ import logging
 from typing import Callable, Iterable, List, Optional, Tuple
 import mwparserfromhell
 from mwparserfromhell.nodes import ExternalLink, Heading, Tag, Text, Wikilink
+from mwparserfromhell.wikicode import Wikicode
 
 
 logger = logging.getLogger(__name__)
@@ -57,7 +58,7 @@ WikilinkParser = Callable[[Wikilink], Tuple[bool, bool, str, str]]
 
 class WikitextToStructuredMwpfhTransformer:
 
-    """Wikitext Preprocessor using MediaWiki Parser From Hell
+    """Content Transformer: Wikitext -> Structured Data using MediaWiki Parser From Hell
 
     Args:
         forbidden_wikilink_prefixes (Iterable[str]): ignore wikilinks with these
@@ -250,13 +251,51 @@ class WikitextToStructuredMwpfhTransformer:
 
         return paragraphs_local
 
-    def process(self, text: str) -> List[dict]:
-        """Process wikitext markup into a list of paragraph objects.
+    def _default_filter_categories(self, wikicode: Wikicode) -> List[str]:
+        """Return a list of categories from wikicode.
 
-        TODO: Describe paragraph object format when finalized.
+        TODO: make this better
+        """
+        return [
+            el[len("[[Category:"):-2]
+            for el in wikicode.filter_wikilinks()
+            if el.startswith("[[Category:")
+        ]
+
+    def _has_disambiguation_template(self, wikitext: str) -> bool:
+        """Check for templates indicating disambiguation page status.
+
+        Disambiguation templates come in several varieties
+        e.g. {{disambiguation}}, {{disambiguation|geo}}, ...
+        Also, links inside a page can be marked with a {{disambiguation needed|date=...}}
+        without marking the page as a disambigution page so we do a quick
+        and dirty check for the opening part of a disambiguation template.
+
+        Another way to check for disambiguation page status (and other non natural text
+        pages) is to use wikidata to see if the page is associated with a wikidata item
+        that is an instance of https://www.wikidata.org/wiki/Q17442446 or any of its
+        subclasses.
+        """
+        template_bool = "{{disambiguation|" in wikitext or "{{disambiguation}}" in wikitext
+        return template_bool
+
+    def process(self, wikitext: str) -> dict:
+        """Process wikitext into structured data.
+
+        This transformer takes in wikitext and produces structured data.
+        It is designed under the assumption that the input is a full Wikipedia
+        page of wikitext markup.  However, you can still pass in snippets of
+        wikitext and get mostly sensible results.
+
+        Args:
+            wikitext (str): wikitext markup
+
+        Returns:
+            structured (dict): structured page data
+
         """
         self._reset()
-        wikicode = mwparserfromhell.parse(text)
+        wikicode = mwparserfromhell.parse(wikitext)
         paragraphs = []
         do_expensive_logging = logger.isEnabledFor(logging.DEBUG)
 
@@ -282,9 +321,23 @@ class WikitextToStructuredMwpfhTransformer:
 
         if self._current_text and not self._current_text.isspace():
             paragraphs.append({
-                "text": self._current_text,
+                "plaintext": self._current_text,
                 "wikilinks": self._current_wikilinks,
                 "section_idx": self._section_idx,
                 "section_name": self._section_name})
 
-        return paragraphs
+        return {
+            "paragraphs": paragraphs,
+            "categories": self._default_filter_categories(wikicode),
+            "is_disambiguation": self._has_disambiguation_template(wikitext),
+        }
+
+
+if __name__ == "__main__":
+
+    file_path = "../../tests/39_Albedo_953762015.wikitext"
+    wikitext = open(file_path, "r").read()
+    wikicode = mwparserfromhell.parse(wikitext)
+    transformer = WikitextToStructuredMwpfhTransformer()
+    structured = transformer.process(wikitext)
+    print("hello")

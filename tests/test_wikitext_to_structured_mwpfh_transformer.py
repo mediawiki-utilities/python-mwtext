@@ -9,14 +9,18 @@ from .mwpfh_wikilink_fixtures import WIKILINK_TEST_FIXTURES
 
 def test_wikilinks_only():
     for test_name, test_data in WIKILINK_TEST_FIXTURES.items():
-        wtpp = WikitextToStructuredMwpfhTransformer()
-        parsed = wtpp.process(test_data["wikitext"])
-        expected = [
-            {
-                "section_idx": 0,
-                "section_name": "Introduction",
-                "text": test_data["text"],
-                "wikilinks": test_data["links"]
-            },
-        ]
-        assert parsed == expected
+        transformer = WikitextToStructuredMwpfhTransformer()
+        structured = transformer.process(test_data["wikitext"])
+        expected = {
+            "paragraphs": [
+                {
+                    "section_idx": 0,
+                    "section_name": "Introduction",
+                    "plaintext": test_data["plaintext"],
+                    "wikilinks": test_data["wikilinks"]
+                },
+            ],
+            "categories": test_data["categories"],
+            "is_disambiguation": False,
+        }
+        assert structured == expected
