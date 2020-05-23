@@ -58,7 +58,7 @@ WikilinkParser = Callable[[Wikilink], Tuple[bool, bool, str, str]]
 
 class WikitextToStructuredMwpfhTransformer:
 
-    """Content Transformer: Wikitext -> Structured Data using MediaWiki Parser From Hell
+    """Wikitext -> Structured Data using MediaWiki Parser From Hell
 
     Args:
         forbidden_wikilink_prefixes (Iterable[str]): ignore wikilinks with these
@@ -85,12 +85,14 @@ class WikitextToStructuredMwpfhTransformer:
         allowed_tags: Iterable[str] = ALLOWED_TAGS,
         include_disallowed_tag_tokens: bool = False,
         custom_wikilink_parser: Optional[WikilinkParser] = None,
+        include_external_link_anchors: bool = True,
     ) -> None:
         self.forbidden_wikilink_prefixes = forbidden_wikilink_prefixes
         self.forbidden_sections = forbidden_sections
         self.allowed_tags = allowed_tags
         self.include_disallowed_tag_tokens = include_disallowed_tag_tokens
         self.custom_wikilink_parser = custom_wikilink_parser
+        self.include_external_link_anchors = include_external_link_anchors
         self._reset()
 
     def _reset(self) -> None:
@@ -142,6 +144,8 @@ class WikitextToStructuredMwpfhTransformer:
 
         Include the title of external links in the text stream.
         """
+        if not self.include_external_link_anchors:
+            return
         if not node.title:
             return
         text = node.title.strip_code().strip()
@@ -322,15 +326,16 @@ class WikitextToStructuredMwpfhTransformer:
 
         if self._current_text and not self._current_text.isspace():
             paragraphs.append({
-                "plaintext": self._current_text,
+                "plaintext": self._current_text.rstrip(),
                 "wikilinks": self._current_wikilinks,
                 "section_idx": self._section_idx,
                 "section_name": self._section_name})
 
+        has_disambigution_template = self._has_disambiguation_template(wikitext)
         return {
             "paragraphs": paragraphs,
             "categories": self._default_filter_categories(wikicode),
-            "has_disambiguation_template": self._has_disambiguation_template(wikitext),
+            "has_disambiguation_template": has_disambigution_template,
         }
 
 
