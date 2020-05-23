@@ -91,7 +91,7 @@ WIKILINK_TEST_FIXTURES = {
     },
     "category": {
         "wikitext": "a [[Category:Vowel letters]]",
-        "plaintext": "a ",
+        "plaintext": "a",
         "wikilinks": [],
         "categories": ["Vowel_letters"],
     },
@@ -109,7 +109,7 @@ WIKILINK_TEST_FIXTURES = {
     },
     "nested_file": {
         "wikitext": "a [[File:Albedo-e hg.svg|thumb|upright=1.3|The percentage of [[diffuse reflection|diffusely reflected]] [[sunlight]] relative to various surface conditions]]", # noqa
-        "plaintext": "a ",
+        "plaintext": "a",
         "wikilinks": [],
         "categories": [],
     },
