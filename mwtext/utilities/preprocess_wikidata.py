@@ -1,27 +1,30 @@
 import bz2
 import json
 import os
+import random
 
 import mwbase
 
 
 def getPropertyValue(entity):
-    prop_val = ''
+    claims_tuples = []
     properties = list(entity.properties.keys())
     for prop in properties:
-        values = ''
+        value_found = False
         for statement in entity.properties[prop]:
             claim = statement.claim
             if claim.datatype == 'wikibase-item':
                 datavalue = claim.datavalue
                 if datavalue:
                     value = datavalue.id
-                    values += (' ' + prop + ' ' + value)
-        if not values:
-            prop_val += ' ' + prop
-        else:
-            prop_val += values
-    return prop_val[1:]
+                    value_found = True
+                    claims_tuples.append((prop, value))
+        if not value_found:
+            claims_tuples.append((prop,))
+
+    random.shuffle(claims_tuples)
+    claims_str = ' '.join([' '.join(c) for c in claims_tuples])
+    return claims_str
 
 
 def isRelevantEntity(entity):
@@ -52,3 +55,4 @@ def preprocess_wikidata(WIKIDATA_DIR):
             if isRelevantEntity(entity):
                 prop_val = getPropertyValue(entity)
                 yield qid + ": " + prop_val
+
