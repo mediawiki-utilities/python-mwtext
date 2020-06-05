@@ -22,6 +22,7 @@ known issues:
 """
 import logging
 from typing import Callable, Iterable, List, Optional, Tuple
+from .content_transformer import ContentTransformer
 import mwparserfromhell
 from mwparserfromhell.nodes import ExternalLink, Heading, Tag, Text, Wikilink
 from mwparserfromhell.wikicode import Wikicode
@@ -56,20 +57,21 @@ ALLOWED_TAGS = [
 WikilinkParser = Callable[[Wikilink], Tuple[bool, bool, str, str]]
 
 
-class WikitextToStructuredMwpfhTransformer:
+class Wikitext2StructuredSections(ContentTransformer):
 
-    """Wikitext -> Structured Data using MediaWiki Parser From Hell
+    """Wikitext -> Structured Sections using MediaWiki Parser From Hell
 
     Args:
-        forbidden_wikilink_prefixes (Iterable[str]): ignore wikilinks with these
-            (case insensitive) prefixes.
+        forbidden_wikilink_prefixes (Iterable[str]): ignore wikilinks with
+            these (case insensitive) prefixes.
         forbidden_sections (Iterable[str]): skip sections with these
             (case insensitive) titles.
         allowed_tags (Iterable[str]): include the contents of these tags
         include_disallowed_tag_tokens (bool): if True, include a single
             token for tags that are not in the `allowed_tags` list.  For
             example a <table> token to represent all the markup of a table.
-        custom_wikilink_parser (Callable[[Wikilink], Tuple[bool, bool, str, str]]):
+        custom_wikilink_parser (Callable[[Wikilink], Tuple[bool, bool, str,
+                str]]):
             function that takes in a Wikilink object and returns a 4-tuple
             (add_link, add_text, target, anchor) where,
               * add_link: determines if link is added to link list
@@ -94,6 +96,60 @@ class WikitextToStructuredMwpfhTransformer:
         self.custom_wikilink_parser = custom_wikilink_parser
         self.include_external_link_anchors = include_external_link_anchors
         self._reset()
+
+    def transform(self, wikitext: str) -> dict:
+        """Process wikitext into structured data.
+
+        This transformer takes in wikitext and produces structured data.
+        It is designed under the assumption that the input is a full Wikipedia
+        page of wikitext markup.  However, you can still pass in snippets of
+        wikitext and get mostly sensible results.
+
+        Args:
+            wikitext (str): wikitext markup
+
+        Returns:
+            structured (dict): structured page data
+
+        """
+        self._reset()
+        wikicode = mwparserfromhell.parse(wikitext)
+        paragraphs = []
+        do_expensive_logging = logger.isEnabledFor(logging.DEBUG)
+
+        for node_idx, node in enumerate(wikicode.nodes):
+
+            if do_expensive_logging:
+                logger.debug("node=%s, %s", type(node), repr(node))
+
+            if not self._skipping_section:
+                if isinstance(node, mwparserfromhell.nodes.Text):
+                    paragraphs_local = self._parse_text_node(node)
+                    paragraphs.extend(paragraphs_local)
+                elif isinstance(node, mwparserfromhell.nodes.Wikilink):
+                    self._parse_wikilink_node(node)
+                elif isinstance(node, mwparserfromhell.nodes.ExternalLink):
+                    self._parse_external_link_node(node)
+                elif isinstance(node, mwparserfromhell.nodes.Tag):
+                    self._parse_tag_node(node)
+
+            if isinstance(node, mwparserfromhell.nodes.Heading):
+                # this is the only place that can change _skipping_section
+                self._parse_heading_node(node)
+
+        if self._current_text and not self._current_text.isspace():
+            paragraphs.append({
+                "plaintext": self._current_text.rstrip(),
+                "wikilinks": self._current_wikilinks,
+                "section_idx": self._section_idx,
+                "section_name": self._section_name})
+
+        has_disambigution_template = self._has_disambiguation_template(wikitext)
+        return {
+            "paragraphs": paragraphs,
+            "categories": self._default_filter_categories(wikicode),
+            "has_disambiguation_template": has_disambigution_template,
+        }
 
     def _reset(self) -> None:
         self._section_idx = 0
@@ -283,67 +339,3 @@ class WikitextToStructuredMwpfhTransformer:
             "{{disambiguation|" in wikitext or
             "{{disambiguation}}" in wikitext)
         return template_bool
-
-    def process(self, wikitext: str) -> dict:
-        """Process wikitext into structured data.
-
-        This transformer takes in wikitext and produces structured data.
-        It is designed under the assumption that the input is a full Wikipedia
-        page of wikitext markup.  However, you can still pass in snippets of
-        wikitext and get mostly sensible results.
-
-        Args:
-            wikitext (str): wikitext markup
-
-        Returns:
-            structured (dict): structured page data
-
-        """
-        self._reset()
-        wikicode = mwparserfromhell.parse(wikitext)
-        paragraphs = []
-        do_expensive_logging = logger.isEnabledFor(logging.DEBUG)
-
-        for node_idx, node in enumerate(wikicode.nodes):
-
-            if do_expensive_logging:
-                logger.debug("node=%s, %s", type(node), repr(node))
-
-            if not self._skipping_section:
-                if isinstance(node, mwparserfromhell.nodes.Text):
-                    paragraphs_local = self._parse_text_node(node)
-                    paragraphs.extend(paragraphs_local)
-                elif isinstance(node, mwparserfromhell.nodes.Wikilink):
-                    self._parse_wikilink_node(node)
-                elif isinstance(node, mwparserfromhell.nodes.ExternalLink):
-                    self._parse_external_link_node(node)
-                elif isinstance(node, mwparserfromhell.nodes.Tag):
-                    self._parse_tag_node(node)
-
-            if isinstance(node, mwparserfromhell.nodes.Heading):
-                # this is the only place that can change _skipping_section
-                self._parse_heading_node(node)
-
-        if self._current_text and not self._current_text.isspace():
-            paragraphs.append({
-                "plaintext": self._current_text.rstrip(),
-                "wikilinks": self._current_wikilinks,
-                "section_idx": self._section_idx,
-                "section_name": self._section_name})
-
-        has_disambigution_template = self._has_disambiguation_template(wikitext)
-        return {
-            "paragraphs": paragraphs,
-            "categories": self._default_filter_categories(wikicode),
-            "has_disambiguation_template": has_disambigution_template,
-        }
-
-
-if __name__ == "__main__":
-
-    file_path = "../../tests/39_Albedo_953762015.wikitext"
-    wikitext = open(file_path, "r").read()
-    wikicode = mwparserfromhell.parse(wikitext)
-    transformer = WikitextToStructuredMwpfhTransformer()
-    structured = transformer.process(wikitext)
-    print("hello")

@@ -1,3 +1,6 @@
+from .content_transformer import ContentTransformer
+
+from typing import Iterable
 import re
 
 PLAIN_PROTO = [r'bitcoin', r'geo', r'magnet', r'mailto', r'news', r'sips?',
@@ -18,9 +21,10 @@ STRIP_WIKITEXT_REs = [
     r"<!--.*?-->",  # no commented out text
     r"{{.*?}}",  # no templates
     r"&[a-z]+;",  # No entities
-    r"<ref[^<]*<\/ref>",  # No references
-    r"<[^>]*>",  # No tags
+    r"<ref[^<>]*>[^<]*<\/ref>",  # No reference content or ref tags
+    r"<[^>]*>",  # No tags, but leave the content
     r"\[" + URL_RE + r"\]",  # No external links without display text
+    URL_RE,  # No bare external links either
     r"\{\{[^\}]+\}\}",  # No templates
     r"\{\|[^\}\|]+\|\}",  # No tables
     r"(^|\n);+[^\n]+",  # Definition lists terms
@@ -90,28 +94,35 @@ WORD_OR_CJK_RE = re.compile(WORD_RE + "|" + CJK_RE)
 
 PARAGRAPH_SPLIT_RE = r'(\n|\n\r|\r\n)\s*(\n|\n\r|\r\n)+'
 
+HIDDEN_LINK_NAMESPACES = ['Category', 'Image']
 
-class WikitextToPlaintextRegexTransformer:
-    FORBIDDEN_NAMESPACE_IDS = (6, 14)
 
-    def __init__(self, forbidden_link_prefixes):
+class Wikitext2Words(ContentTransformer):
+
+    def __init__(
+        self, hidden_link_namespaces: Iterable[str] = HIDDEN_LINK_NAMESPACES
+    ):
         forbidden_link_re = \
             r"\[\[(" + \
-            "|".join(forbidden_link_prefixes).lower() + \
+            "|".join(hidden_link_namespaces).lower() + \
             r"):[^\]]+\]\]"
         self.strip_regex = re.compile(
             "|".join(STRIP_WIKITEXT_REs + [forbidden_link_re]))
         self.replace_regexs = [(re.compile(p), r) for p, r in REPLACE_REs]
-        self.token_regex = re.compile(WORD_OR_CJK_RE)
 
-    def process(self, text):
+    def transform(self, content):
+        """
+        Converts wikitext into a cleaned up list of words.
+        """
+        return list(self._process_words(content))
+
+    def _extract_words(self, text):
+        # Strip non-content content
         stripped_text = re.sub(self.strip_regex, "", text.lower())
+
+        # Process links and stuff.
         for replace_regex, replacement in self.replace_regexs:
             stripped_text = re.sub(replace_regex, replacement, stripped_text)
 
-        for paragraph in re.split(PARAGRAPH_SPLIT_RE, stripped_text):
-            paragraph_tokens = [
-                match.group(0)
-                for match in re.finditer(self.token_regex, paragraph)]
-            if len(paragraph_tokens) > 0:
-                yield paragraph_tokens
+        for match in re.finditer(WORD_OR_CJK_RE, text):
+            yield match.group(0)

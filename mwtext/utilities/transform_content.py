@@ -1,35 +1,30 @@
 r"""
-``$ mwtext preprocess_text -h``
+``$ mwtext transform_content -h``
 ::
 
-    Converts MediaWiki XML dumps to plaintext.  One line per text chunk with
-    wiki markup and punctuation cleaned up.  This utility is designed with word
-    embeddings in mind.  Generally, you can expect one line per paragraph.
+    Transforms content from MediaWiki XML dumps.  Outputs `revdocs` but
+    replaces content fields with transformed content.
 
     Usage:
-        preprocess_text (-h|--help)
-        preprocess_text [<input-file>...]
-                        [--namespace=<id>]... [--wiki-host=<url>]
-                        [--labels=<path>] [--label-field=<k>]
-                        [--min-line=<chrs>]
-                        [--threads=<num>] [--output=<path>]
-                        [--compress=<type>] [--verbose] [--debug]
+        transform_content (-h|--help)
+        transform_content <content-transformer> [<input-file>...]
+                          [--parameter=<kv>]...
+                          [--namespace=<id>]...
+                          [--labels=<path>] [--label-field=<k>]
+                          [--threads=<num>] [--output=<path>]
+                          [--compress=<type>] [--verbose] [--debug]
 
     Options:
         -h|--help           Print this documentation
+        <content-transformer>  Path to a content transformer to construct and
+                               execute.
         <input-file>        The path to a MediaWiki XML Dump file
                             [default: <stdin>]
+        --parameter=<kv>    A parameter to pass to the <content-transformer>
         --namespace=<id>    Limit processing to this namespace.  Can be
                             repeated to select for multiple namespaces.
         --wiki-host=<url>   The hostname of the MediaWiki install to query
                             for metadata from.
-        --labels=<path>     The path to a file containing label data for
-                            associating with text.  If not set, no labels will
-                            be included.
-        --label-field=<k>   The field to examine within the labels file
-                            [default: taxo_labels]
-        --min-line=<words>  Do not output lines that have fewer than this many
-                            words. [default: 10]
         --threads=<num>     If a collection of files are provided, how many
                             processor threads? [default: <cpu_count>]
         --output=<path>     Write output to a directory with one output file
@@ -150,7 +145,7 @@ def create_label_map(f, lang, label_field):
     return title2labels, label2ids
 
 
-def get_wiki_info(session):
+def get_siteinfo(session):
     doc = session.get(action="query", meta="siteinfo",
                       siprop=["namespaces", "namespacealiases", "general"],
                       formatversion=2)
@@ -164,12 +159,6 @@ def get_wiki_info(session):
             forbidden_namespaces.add(namespace['alias'].lower())
 
     return doc['query']['general']['lang'], forbidden_namespaces
-
-
-def is_article(text):
-    return not (text is None or
-                len(text) < 50 or
-                REDIRECT_RE.match(text))
 
 
 streamer = mwcli.Streamer(
