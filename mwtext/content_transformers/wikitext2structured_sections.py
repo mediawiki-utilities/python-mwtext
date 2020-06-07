@@ -31,17 +31,6 @@ from mwparserfromhell.wikicode import Wikicode
 logger = logging.getLogger(__name__)
 
 
-FORBIDDEN_SECTIONS = [
-    "bibliography",
-    "citations",
-    "external links",
-    "further reading",
-    "other uses",
-    "references",
-    "see also",
-    "sources",
-]
-
 FORBIDDEN_WIKILINK_PREFIXES = [
     "file:",
     "image:",
@@ -64,8 +53,6 @@ class Wikitext2StructuredSections(ContentTransformer):
     Args:
         forbidden_wikilink_prefixes (Iterable[str]): ignore wikilinks with
             these (case insensitive) prefixes.
-        forbidden_sections (Iterable[str]): skip sections with these
-            (case insensitive) titles.
         allowed_tags (Iterable[str]): include the contents of these tags
         include_disallowed_tag_tokens (bool): if True, include a single
             token for tags that are not in the `allowed_tags` list.  For
@@ -83,14 +70,12 @@ class Wikitext2StructuredSections(ContentTransformer):
     def __init__(
         self,
         forbidden_wikilink_prefixes: Iterable[str] = FORBIDDEN_WIKILINK_PREFIXES,
-        forbidden_sections: Iterable[str] = FORBIDDEN_SECTIONS,
         allowed_tags: Iterable[str] = ALLOWED_TAGS,
         include_disallowed_tag_tokens: bool = False,
         custom_wikilink_parser: Optional[WikilinkParser] = None,
         include_external_link_anchors: bool = True,
     ) -> None:
         self.forbidden_wikilink_prefixes = forbidden_wikilink_prefixes
-        self.forbidden_sections = forbidden_sections
         self.allowed_tags = allowed_tags
         self.include_disallowed_tag_tokens = include_disallowed_tag_tokens
         self.custom_wikilink_parser = custom_wikilink_parser
@@ -122,19 +107,16 @@ class Wikitext2StructuredSections(ContentTransformer):
             if do_expensive_logging:
                 logger.debug("node=%s, %s", type(node), repr(node))
 
-            if not self._skipping_section:
-                if isinstance(node, mwparserfromhell.nodes.Text):
-                    paragraphs_local = self._parse_text_node(node)
-                    paragraphs.extend(paragraphs_local)
-                elif isinstance(node, mwparserfromhell.nodes.Wikilink):
-                    self._parse_wikilink_node(node)
-                elif isinstance(node, mwparserfromhell.nodes.ExternalLink):
-                    self._parse_external_link_node(node)
-                elif isinstance(node, mwparserfromhell.nodes.Tag):
-                    self._parse_tag_node(node)
-
-            if isinstance(node, mwparserfromhell.nodes.Heading):
-                # this is the only place that can change _skipping_section
+            if isinstance(node, mwparserfromhell.nodes.Text):
+                paragraphs_local = self._parse_text_node(node)
+                paragraphs.extend(paragraphs_local)
+            elif isinstance(node, mwparserfromhell.nodes.Wikilink):
+                self._parse_wikilink_node(node)
+            elif isinstance(node, mwparserfromhell.nodes.ExternalLink):
+                self._parse_external_link_node(node)
+            elif isinstance(node, mwparserfromhell.nodes.Tag):
+                self._parse_tag_node(node)
+            elif isinstance(node, mwparserfromhell.nodes.Heading):
                 self._parse_heading_node(node)
 
         if self._current_text and not self._current_text.isspace():
@@ -154,23 +136,17 @@ class Wikitext2StructuredSections(ContentTransformer):
     def _reset(self) -> None:
         self._section_idx = 0
         self._section_name = "Introduction"
-        self._skipping_section = False
         self._current_text = ""
         self._current_wikilinks = []
 
     def _parse_heading_node(self, node: Heading) -> None:
         """Parse heading node.
 
-        If this is a level 2 node (== heading ==), set the section name and decide
-        if we are skipping this section.
+        If this is a level 2 node (== heading ==), update section information.
         """
         if node.level == 2:
             self._section_name = node.title.strip_code().strip()
-            if self._section_name.lower() in self.forbidden_sections:
-                self._skipping_section = True
-            else:
-                self._section_idx += 1
-                self._skipping_section = False
+            self._section_idx += 1
 
     def _parse_tag_node(self, node: Tag) -> None:
         """Parse tag node.
@@ -305,15 +281,14 @@ class Wikitext2StructuredSections(ContentTransformer):
         return paragraphs_local
 
     def _default_filter_categories(self, wikicode: Wikicode) -> List[str]:
-        """Return a list of categories from wikicode.
-
-        TODO: make this better
-        """
+        """Return a list of categories from wikicode."""
+        wikilinks = wikicode.filter_wikilinks()
+        category_links = [
+            el for el in wikilinks
+            if el.title.lower().startswith("category:")]
         category_titles = [
-            el[len("[[Category:"):-2]
-            for el in wikicode.filter_wikilinks()
-            if el.startswith("[[Category:")
-        ]
+            el.title.rstrip()[len("Category:"):]
+            for el in category_links]
         category_titles = [
             title[0].upper() + title[1:].replace(" ", "_")
             for title in category_titles

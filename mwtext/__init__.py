@@ -1,9 +1,9 @@
-from .wikitext.plaintext_regex import WikitextToPlaintextRegexTransformer
-from .wikitext.structured_mwpfh import WikitextToStructuredMwpfhTransformer
+from .content_transformers.wikitext2words import Wikitext2Words
+from .content_transformers.wikitext2structured_sections import Wikitext2StructuredSections
 from .about import (__name__, __version__, __author__, __author_email__,
                     __description__, __license__, __url__)
 
-__all__ = (WikitextToPlaintextRegexTransformer,
-           WikitextToStructuredMwpfhTransformer,
+__all__ = (Wikitext2Words,
+           Wikitext2StructuredSections,
            __name__, __version__, __author__, __author_email__,
            __description__, __license__, __url__)
