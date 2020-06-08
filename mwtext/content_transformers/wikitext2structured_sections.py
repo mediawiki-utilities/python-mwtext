@@ -283,16 +283,19 @@ class Wikitext2StructuredSections(ContentTransformer):
     def _default_filter_categories(self, wikicode: Wikicode) -> List[str]:
         """Return a list of categories from wikicode."""
         wikilinks = wikicode.filter_wikilinks()
+        ii = len("Category:")
         category_links = [
             el for el in wikilinks
             if el.title.lower().startswith("category:")]
         category_titles = [
-            el.title.rstrip()[len("Category:"):]
-            for el in category_links]
+            el.title.rstrip()[ii:]
+            for el in category_links
+            if len(el.title.rstrip()[ii:]) > 0]
         category_titles = [
             title[0].upper() + title[1:].replace(" ", "_")
             for title in category_titles
         ]
+
         return category_titles
 
     def _has_disambiguation_template(self, wikitext: str) -> bool:
