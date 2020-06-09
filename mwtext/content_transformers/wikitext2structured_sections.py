@@ -80,7 +80,6 @@ class Wikitext2StructuredSections(ContentTransformer):
         self.include_disallowed_tag_tokens = include_disallowed_tag_tokens
         self.custom_wikilink_parser = custom_wikilink_parser
         self.include_external_link_anchors = include_external_link_anchors
-        self._reset()
 
     def transform(self, wikitext: str) -> dict:
         """Process wikitext into structured data.
@@ -97,7 +96,13 @@ class Wikitext2StructuredSections(ContentTransformer):
             structured (dict): structured page data
 
         """
-        self._reset()
+        parse_state = {
+            "section_idx": 0,
+            "section_name": "Introduction",
+            "current_text": "",
+            "current_wikilinks": [],
+        }
+
         wikicode = mwparserfromhell.parse(wikitext)
         paragraphs = []
         do_expensive_logging = logger.isEnabledFor(logging.DEBUG)
@@ -107,24 +112,24 @@ class Wikitext2StructuredSections(ContentTransformer):
             if do_expensive_logging:
                 logger.debug("node=%s, %s", type(node), repr(node))
 
-            if isinstance(node, mwparserfromhell.nodes.Text):
-                paragraphs_local = self._parse_text_node(node)
+            if isinstance(node, Text):
+                paragraphs_local = self._parse_text_node(node, parse_state)
                 paragraphs.extend(paragraphs_local)
-            elif isinstance(node, mwparserfromhell.nodes.Wikilink):
-                self._parse_wikilink_node(node)
-            elif isinstance(node, mwparserfromhell.nodes.ExternalLink):
-                self._parse_external_link_node(node)
-            elif isinstance(node, mwparserfromhell.nodes.Tag):
-                self._parse_tag_node(node)
-            elif isinstance(node, mwparserfromhell.nodes.Heading):
-                self._parse_heading_node(node)
+            elif isinstance(node, Wikilink):
+                self._parse_wikilink_node(node, parse_state)
+            elif isinstance(node, ExternalLink):
+                self._parse_external_link_node(node, parse_state)
+            elif isinstance(node, Tag):
+                self._parse_tag_node(node, parse_state)
+            elif isinstance(node, Heading):
+                self._parse_heading_node(node, parse_state)
 
-        if self._current_text and not self._current_text.isspace():
+        if parse_state["current_text"] and not parse_state["current_text"].isspace():
             paragraphs.append({
-                "plaintext": self._current_text.rstrip(),
-                "wikilinks": self._current_wikilinks,
-                "section_idx": self._section_idx,
-                "section_name": self._section_name})
+                "plaintext": parse_state["current_text"].rstrip(),
+                "wikilinks": parse_state["current_wikilinks"],
+                "section_idx": parse_state["section_idx"],
+                "section_name": parse_state["section_name"]})
 
         has_disambigution_template = self._has_disambiguation_template(wikitext)
         return {
@@ -133,22 +138,16 @@ class Wikitext2StructuredSections(ContentTransformer):
             "has_disambiguation_template": has_disambigution_template,
         }
 
-    def _reset(self) -> None:
-        self._section_idx = 0
-        self._section_name = "Introduction"
-        self._current_text = ""
-        self._current_wikilinks = []
-
-    def _parse_heading_node(self, node: Heading) -> None:
+    def _parse_heading_node(self, node: Heading, parse_state) -> None:
         """Parse heading node.
 
         If this is a level 2 node (== heading ==), update section information.
         """
         if node.level == 2:
-            self._section_name = node.title.strip_code().strip()
-            self._section_idx += 1
+            parse_state["section_name"] = node.title.strip_code().strip()
+            parse_state["section_idx"] += 1
 
-    def _parse_tag_node(self, node: Tag) -> None:
+    def _parse_tag_node(self, node: Tag, parse_state) -> None:
         """Parse tag node.
 
         For allowed tags, include the contents of the tag in the text stream.
@@ -163,15 +162,15 @@ class Wikitext2StructuredSections(ContentTransformer):
         # add the contents of allowed tags to the text stream
         if node.tag in self.allowed_tags:
             text = node.contents.strip_code().strip()
-            self._current_text += text
+            parse_state["current_text"] += text
 
         # optionally add a single token for disallowed tags
         else:
             if self.include_disallowed_tag_tokens:
                 text = "<{}>".format(node.tag.strip_code().strip())
-                self._current_text += text
+                parse_state["current_text"] += text
 
-    def _parse_external_link_node(self, node: ExternalLink):
+    def _parse_external_link_node(self, node: ExternalLink, parse_state):
         """Parse external link node.
 
         Include the title of external links in the text stream.
@@ -181,7 +180,7 @@ class Wikitext2StructuredSections(ContentTransformer):
         if not node.title:
             return
         text = node.title.strip_code().strip()
-        self._current_text += text
+        parse_state["current_text"] += text
 
     def _default_wikilink_parser(
             self,
@@ -227,7 +226,7 @@ class Wikitext2StructuredSections(ContentTransformer):
         add_link = ":" not in target
         return (add_text, add_link, target, anchor)
 
-    def _parse_wikilink_node(self, node: Wikilink) -> None:
+    def _parse_wikilink_node(self, node: Wikilink, parse_state) -> None:
         """Parse wikilink nodes.
 
         basic cases:,
@@ -252,13 +251,13 @@ class Wikitext2StructuredSections(ContentTransformer):
         add_text, add_link, target, anchor = wikilink_parser(node)
 
         if add_text:
-            start = len(self._current_text)
-            self._current_text += anchor
-            end = len(self._current_text)
+            start = len(parse_state["current_text"])
+            parse_state["current_text"] += anchor
+            end = len(parse_state["current_text"])
         if add_link:
-            self._current_wikilinks.append((target, anchor, start, end))
+            parse_state["current_wikilinks"].append((target, anchor, start, end))
 
-    def _parse_text_node(self, node: Text) -> List[dict]:
+    def _parse_text_node(self, node: Text, parse_state) -> List[dict]:
         """Parse text node.
 
         Create a list of paragraph objects from a text node.
@@ -266,17 +265,17 @@ class Wikitext2StructuredSections(ContentTransformer):
         paragraphs_local = []
         for (ii, text) in enumerate(node.split("\n")):
             if ii == 0:
-                self._current_text += text
+                parse_state["current_text"] += text
             else:
-                if self._current_text and not self._current_text.isspace():
+                if parse_state["current_text"] and not parse_state["current_text"].isspace():
                     paragraphs_local.append({
-                        "text": self._current_text,
-                        "wikilinks": self._current_wikilinks,
-                        "section_idx": self._section_idx,
-                        "section_name": self._section_name})
+                        "text": parse_state["current_text"],
+                        "wikilinks": parse_state["current_wikilinks"],
+                        "section_idx": parse_state["section_idx"],
+                        "section_name": parse_state["section_name"]})
 
-                self._current_text = text
-                self._current_wikilinks = []
+                parse_state["current_text"] = text
+                parse_state["current_wikilinks"] = []
 
         return paragraphs_local
 
