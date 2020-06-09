@@ -7,14 +7,14 @@ Usage:
     learn_vectors <input> [--param=<kv>]... [--output=<path>]
 
 Options:
-    --param=<kv>     A named parameter for training the fasttext model.  The
-                     value will be interpretted as a JSON blob.
-    <input>          The path of an input file containing labels and words in
-                     the fasttext format.
-    --qt_cutoff=<num>Set a limit on the number of words that will stay in
-                     model dictionary after quantization(feature selextion)
-    --output=<path>  The output file to write vectors to [default: <stdout>]
-    --debug          Print debug information.
+    --param=<kv>       A named parameter for training the fasttext model. The
+                       value will be interpretted as a JSON blob.
+    <input>            The path of an input file containing labels and words in
+                       the fasttext format.
+    --qt_cutoff=<num>  Set a limit on the number of words that will stay in
+                       model dictionary after quantization(feature selextion)
+    --output=<path>    The output file to write vectors to [default: <stdout>]
+    --debug            Print debug information.
 """
 import json
 import sys
