@@ -34,35 +34,7 @@ import mwcli
 from ..wikidata_preprocessor import WikidataPreprocessor
 
 
-def getPropertyValue(entity):
-    claims_tuples = []
-    properties = list(entity.properties.keys())
-    for prop in properties:
-        value_found = False
-        for statement in entity.properties[prop]:
-            claim = statement.claim
-            if claim.datatype == 'wikibase-item':
-                datavalue = claim.datavalue
-                if datavalue:
-                    value = datavalue.id
-                    value_found = True
-                    claims_tuples.append((prop, value))
-        if not value_found:
-            claims_tuples.append((prop,))
-
-    random.shuffle(claims_tuples)
-    claims_str = ' '.join([' '.join(c) for c in claims_tuples])
-    return claims_str
-
-
-def isRelevantEntity(entity):
-    sitelinks = [l[:-4] for l in list(entity.sitelinks.keys()) 
-                 if l.endswith('wiki') and 
-                 l != 'commonswiki' and l != 'specieswiki']
-    return (len(sitelinks) > 0)
-
-
-def preprocess_wikidata(dump):
+def preprocess_wikidata(dump, verbose=False):
     wikidata_preprocessor = WikidataPreprocessor()
     for item_json in dump:
         qid = item_json.get('id', None)
@@ -74,9 +46,15 @@ def preprocess_wikidata(dump):
             sys.stderr.flush()
 
         entity = mwbase.Entity.from_json(item_json)
-        if isRelevantEntity(entity):
-            prop_val = getPropertyValue(entity)
-            yield qid + ": " + prop_val
+        if is_relevant_entity(entity):
+            claims_tuples = []
+            for claim_tuple in wikidata_preprocessor.process(entity):
+                claims_tuples.append(claim_tuple)
+
+            random.shuffle(claims_tuples)
+            claims_str = ' '.join([' '.join(c) for c in claims_tuples])
+            yield qid + ": " + claims_str
+
             if verbose:
                 sys.stderr.write(".")
                 sys.stderr.flush()
@@ -84,10 +62,17 @@ def preprocess_wikidata(dump):
             if verbose:
                 sys.stderr.write("-")
                 sys.stderr.flush()
-  
+
         if verbose:
             sys.stderr.write("\n")
             sys.stderr.flush()
+
+
+def is_relevant_entity(entity):
+    sitelinks = [l[:-4] for l in list(entity.sitelinks.keys())
+                 if l.endswith('wiki') and
+                 l != 'commonswiki' and l != 'specieswiki']
+    return (len(sitelinks) > 0)
 
 
 streamer = mwcli.Streamer(
