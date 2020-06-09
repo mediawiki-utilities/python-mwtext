@@ -114,7 +114,7 @@ class Wikitext2Words(ContentTransformer):
         """
         Converts wikitext into a cleaned up list of words.
         """
-        return list(self._process_words(content))
+        return list(self._extract_words(content))
 
     def _extract_words(self, text):
         # Strip non-content content

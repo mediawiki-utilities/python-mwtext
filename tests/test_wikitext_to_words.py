@@ -1,10 +1,10 @@
-from mwtext import WikitextToPlaintextRegexTransformer
+from mwtext import Wikitext2Words
 
 
 def test_preprocessing_english():
     forbidden_link_prefixes = ['category', 'image', 'file']
 
-    wtpp = WikitextToPlaintextRegexTransformer(forbidden_link_prefixes)
+    wtpp = Wikitext2Words(forbidden_link_prefixes)
     text = """
 {{Infobox thing
  | derp = herp
@@ -16,7 +16,7 @@ This is some text.  It should [[show]] up [[pretty:naturally]].{{fact}}
 == Another header ==
 Here is another paragraph.  Nothing [[inane|special]] here.<ref name="wut"/>
 [[Category:foobar]]"""
-    assert list(wtpp.process(text)) == [
+    assert list(wtpp.transform(text)) == [
         ["this", "is", "some", "text", "it", "should", "show", "up", "pretty",
          "naturally"],
         ["here", "is", "another", "paragraph", "nothing", "special", "here"]]
@@ -27,7 +27,7 @@ def test_preprocessing_vietnamese():
         'category', 'image', 'file',
         'tập tin', 'thể loại']
 
-    wtpp = WikitextToPlaintextRegexTransformer(forbidden_link_prefixes)
+    wtpp = Wikitext2Words(forbidden_link_prefixes)
     text = """
 {{Infobox actor
 |name = George Lucas
@@ -50,8 +50,8 @@ def test_preprocessing_vietnamese():
 [[Thể loại:Tỷ phú Hoa Kỳ]]
 [[Thể loại:Nam tiểu thuyết gia Mỹ]]
 """ # Noqa
-    print(list(wtpp.process(text)))
-    assert list(wtpp.process(text)) == [
+    print(list(wtpp.transform(text)))
+    assert list(wtpp.transform(text)) == [
         ['george', 'walton', 'lucas', 'jr', 'sinh', 'ngày', 'anumber', 'tháng',
          'anumber', 'năm', 'anumber', 'là', 'một', 'nhà', 'sản', 'xuất',
          'phim', 'đạo', 'diễn', 'diễn', 'viên', 'tác', 'giả', 'kịch', 'bản',
@@ -69,7 +69,7 @@ def test_preprocessing_korean():
         'category', 'image', 'file',
         '파일', '분류', '그림']
 
-    wtpp = WikitextToPlaintextRegexTransformer(forbidden_link_prefixes)
+    wtpp = Wikitext2Words(forbidden_link_prefixes)
     text = """
 {{영화인 정보
 |이름       = 조지 루카스
@@ -90,8 +90,8 @@ def test_preprocessing_korean():
 {{기본정렬:루카스, 조지}}
 [[분류:머데스토 출신]]
 """ # Noqa
-    print(list(wtpp.process(text)))
-    assert list(wtpp.process(text)) == [
+    print(list(wtpp.transform(text)))
+    assert list(wtpp.transform(text)) == [
         ['조지', '월턴', '루카스', '주니어', 'george', 'walton', 'lucas', 'jr',
          '년', '월', '일', '는', '미국의', '영화', '제작자이자', '기업가이다', '스타워즈',
          '와', '인디아나', '존스', '프랜차이즈의', '창작자로', '가장', '유명하며',
@@ -118,7 +118,7 @@ def test_preprocessing_arabic():
         'category', 'image', 'file',
         'تصنيف', 'ملف', 'صورة']
 
-    wtpp = WikitextToPlaintextRegexTransformer(forbidden_link_prefixes)
+    wtpp = Wikitext2Words(forbidden_link_prefixes)
     text = """
 {{معلومات ممثل
 | الاسم              = جورج لوكاس
@@ -161,8 +161,8 @@ def test_preprocessing_arabic():
 
 [[تصنيف:فاعلو خير في القرن 21]]
 """ # Noqa
-    print(list(wtpp.process(text)))
-    assert list(wtpp.process(text)) == [
+    print(list(wtpp.transform(text)))
+    assert list(wtpp.transform(text)) == [
         ['جورج', 'لوكاس', 'anumber', 'مايو', 'anumber',
          '،موديستو،', 'كاليفورنيا', '،', 'مخرج', 'وسيناريست', 'ومنتج',
          'اشتهر', 'بإخراجه', 'وإنتاجه', 'لفيلم',

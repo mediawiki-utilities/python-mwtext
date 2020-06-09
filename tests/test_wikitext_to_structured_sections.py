@@ -3,14 +3,14 @@ Inspiration for test cases drawn from,
 
  * https://en.wikipedia.org/wiki/Help:Wikitext#Links_and_URLs
 """
-from mwtext import WikitextToStructuredMwpfhTransformer
+from mwtext import Wikitext2StructuredSections
 from .mwpfh_wikilink_fixtures import WIKILINK_TEST_FIXTURES
 
 
 def test_wikilinks_only():
     for test_name, test_data in WIKILINK_TEST_FIXTURES.items():
-        transformer = WikitextToStructuredMwpfhTransformer()
-        structured = transformer.process(test_data["wikitext"])
+        transformer = Wikitext2StructuredSections()
+        structured = transformer.transform(test_data["wikitext"])
 
         actual = {
             "paragraphs": structured["paragraphs"],
