@@ -12,7 +12,7 @@ Options:
     <input>            The path of an input file containing labels and words in
                        the fasttext format.
     --qt_cutoff=<num>  Set a limit on the number of words that will stay in
-                       model dictionary after quantization(feature selextion)
+                       model dictionary after quantization(feature selection)
     --output=<path>    The output file to write vectors to [default: <stdout>]
     --debug            Print debug information.
 """

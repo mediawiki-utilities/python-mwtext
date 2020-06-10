@@ -3,30 +3,47 @@ r"""
 ::
 
     Transforms content from MediaWiki XML dumps.  Outputs `revdocs` but
-    replaces content fields with transformed content.
+    replaces text field with a transformed_content field.
 
     Usage:
         transform_content (-h|--help)
         transform_content <content-transformer> [<input-file>...]
                           [--parameter=<kv>]...
+                          [--include-redirects]
                           [--namespace=<id>]...
-                          [--labels=<path>] [--label-field=<k>]
+                          [--content-model=<mdl>]...
+                          [--min-content-len=<chrs>]
+                          [--siteinfo=<path>]
+                          [--wiki-host=<url>]
                           [--threads=<num>] [--output=<path>]
                           [--compress=<type>] [--verbose] [--debug]
 
     Options:
-        -h|--help           Print this documentation
+        -h --help           Print this documentation
         <content-transformer>  Path to a content transformer to construct and
                                execute.
         <input-file>        The path to a MediaWiki XML Dump file
                             [default: <stdin>]
-        --parameter=<kv>    A parameter to pass to the <content-transformer>
+        -p --param=<kv>     A parameter to pass to the <content-transformer>.
+                            <kv> takes the form of "<key>=<value>" where <key>
+                            is a legal python argument name and <value> is JSON
+                            encoded data.
+        --include-redirects  If set, include redirects
         --namespace=<id>    Limit processing to this namespace.  Can be
                             repeated to select for multiple namespaces.
-        --wiki-host=<url>   The hostname of the MediaWiki install to query
-                            for metadata from.
+        --content-model=<mdl>  Limit to this content model.  Can be repeated to
+                               match multiple different content types.
+        --min-content-length=<chrs>  Limit to pages with at least <len>
+                                     characters of content.
+        --siteinfo=<path>   The path to a file containing a relevant siteinfo
+                            document JSON encoded.
+        --wiki-host=<url>   The hostname of the MediaWiki install to query for
+                            siteinfo.  Note that this argument is ignored when
+                            '--siteinfo' is specified.
         --threads=<num>     If a collection of files are provided, how many
-                            processor threads? [default: <cpu_count>]
+                            processor threads?  Note that this actually uses
+                            subprocesses and will parallelize over CPU
+                            [default: <cpu_count>]
         --output=<path>     Write output to a directory with one output file
                             per input path.  [default: <stdout>]
         --compress=<type>   If set, output written to the output-dir will be
@@ -43,131 +60,106 @@ import sys
 import mwapi
 import mwcli
 import mwcli.files
+import yamlconf
 
-from ..wikitext_preprocessor import WikitextPreprocessor
+from .util import get_siteinfo, is_relevant_page
 
 logger = logging.getLogger(__name__)
 REDIRECT_RE = re.compile("#redirect", re.I)
 
 
-def preprocess_text(dump, forbidden_namespaces, title2labels=None,
-                    namespaces=None, min_line=10, verbose=False):
-    wikitext_preprocessor = WikitextPreprocessor(forbidden_namespaces)
+def transform_content(
+        dump, transformer, allowed_namespaces=None,
+        allowed_content_models=None, include_redirects=False,
+        min_content_length=None, verbose=False):
+
+    namespace_id_map = {ns.id: ns.name for ns in dump.site_info.namespaces}
+
     for page in dump:
-        if namespaces and page.namespace not in namespaces:
-            continue
-        if title2labels is not None:
-            if page.title not in title2labels:
-                continue
-            else:
-                labels = title2labels[page.title]
-        else:
-            labels = []
         if verbose:
             sys.stderr.write(page.title + ": ")
             sys.stderr.flush()
 
         for revision in page:
-            if not is_article(revision.text):
+            relevant = is_relevant_page(
+                page, revision, allowed_namespaces=allowed_namespaces,
+                allowed_content_models=allowed_content_models,
+                include_redirects=include_redirects,
+                min_content_length=min_content_length)
+            if not relevant:
                 continue
-            for line in wikitext_preprocessor.process(revision.text):
-                if len(line) >= min_line:
-                    yield format_labels(labels) + " ".join(line)
-                    if verbose:
-                        sys.stderr.write(".")
-                        sys.stderr.flush()
-                else:
-                    if verbose:
-                        sys.stderr.write("-")
-                        sys.stderr.flush()
+
+            transformed_doc = transformer.transform(revision.text)
+            rev_doc = revision.to_json()
+            rev_doc['page'] = page.to_json()
+            rev_doc['page']['page_name'] = \
+                format_page_name(page, namespace_id_map)
+            del rev_doc['text']
+            rev_doc['transformed_content'] = transformed_doc
+            yield rev_doc
+
+            if verbose:
+                sys.stderr.write(".")
+                sys.stderr.flush()
 
         if verbose:
             sys.stderr.write("\n")
             sys.stderr.flush()
 
 
-def format_labels(label_ids):
-    if len(label_ids) > 0:
-        return " ".join("__label__{0}".format(id) for id in label_ids) + " "
+def format_page_name(page, namespace_id_map):
+    if page.namespace == 0:
+        return page.title
     else:
-        return ""
+        return namespace_id_map[page.namespace] + ":" + page.title
 
 
 def process_args(args):
-    session = mwapi.Session(
-        args['--wiki-host'], user_agent="mwtext preprocess_text")
-    lang, forbidden_namespaces = get_wiki_info(session)
-    logger.info(
-        "Gathered details from site_info: lang={0}, forbidden_namespaces={1}"
-        .format(lang, forbidden_namespaces))
-    if args['--labels'] is not None:
-        label_field = args['--label-field']
-        logger.info("Reading label file {0}...".format(args['--labels']))
-        title2labels, label2ids = create_label_map(
-            mwcli.files.reader(args['--labels']), lang, label_field)
-        logger.info("Label2ids: {0}".format(label2ids))
+    try:
+        Transformer = yamlconf.import_path(args['<content-transformer>'])
+    except ImportError:
+        Transformer = yamlconf.import_path(
+            "mwtext.content_transformers." + args['<content-transformer>'])
+    if args['--siteinfo'] is not None:
+        siteinfo = json.load(open(args['--siteinfo']))['query']
     else:
-        title2labels = None
+        logger.info("Gathering siteinfo from {0}".format(args['--wiki-host']))
+        session = mwapi.Session(
+            args['--wiki-host'], user_agent="mwtext transform_content")
+        siteinfo = get_siteinfo(session)
+
+    transformer = Transformer(siteinfo)
+
+    include_redirects = bool(args['--include-redirects'])
 
     if len(args['--namespace']) == 0:
-        namespaces = None
+        allowed_namespaces = None
     else:
-        namespaces = [int(v) for v in args['--namespace']]
-    min_line = int(args['--min-line'])
+        allowed_namespaces = set(int(v) for v in args['--namespace'])
+
+    if len(args['--content-model']) == 0:
+        allowed_content_models = None
+    else:
+        allowed_content_models = set(cm for cm in args['--content-model'])
+
+    min_content_length = int(args['--min-content-lenth'])
+
     return {
-        'forbidden_namespaces': forbidden_namespaces,
-        'title2labels': title2labels,
-        'namespaces': namespaces,
-        'min_line': min_line}
-
-
-def create_label_map(f, lang, label_field):
-    label2ids = {}
-    title2labels = {}
-    for line in f:
-        ob = json.loads(line)
-
-        # Get title
-        if lang not in ob['sitelinks']:
-            continue
-        else:
-            title = ob['sitelinks'][lang]
-
-        # Get labels
-        label_ids = set()
-        for label in ob[label_field]:
-            if label not in label2ids:
-                label2ids[label] = len(label2ids)
-            label_ids.add(label2ids[label])
-
-        title2labels[title] = set(label_ids)
-
-    return title2labels, label2ids
-
-
-def get_siteinfo(session):
-    doc = session.get(action="query", meta="siteinfo",
-                      siprop=["namespaces", "namespacealiases", "general"],
-                      formatversion=2)
-    forbidden_namespaces = set()
-    for namespace in doc['query']['namespaces'].values():
-        if namespace['id'] in WikitextPreprocessor.FORBIDDEN_NAMESPACE_IDS:
-            forbidden_namespaces.add(namespace['name'].lower())
-            forbidden_namespaces.add(namespace['canonical'].lower())
-    for namespace in doc['query']['namespacealiases']:
-        if namespace['id'] in WikitextPreprocessor.FORBIDDEN_NAMESPACE_IDS:
-            forbidden_namespaces.add(namespace['alias'].lower())
-
-    return doc['query']['general']['lang'], forbidden_namespaces
+        'transformer': transformer,
+        'include_redirects': include_redirects,
+        'allowed_namespaces': allowed_namespaces,
+        'allowed_content_models': allowed_content_models,
+        'min_content_length': min_content_length
+    }
 
 
 streamer = mwcli.Streamer(
     __doc__,
     __name__,
-    preprocess_text,
+    transform_content,
     process_args=process_args,
     file_reader=mwcli.Streamer.read_xml,
-    line_writer=mwcli.Streamer.write_line
+    line_writer=mwcli.Streamer.write_json
 )
 
 main = streamer.main

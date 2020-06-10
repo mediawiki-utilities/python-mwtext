@@ -1,6 +1,6 @@
 from .content_transformer import ContentTransformer
+from . import util
 
-from typing import Iterable
 import re
 
 PLAIN_PROTO = [r'bitcoin', r'geo', r'magnet', r'mailto', r'news', r'sips?',
@@ -99,12 +99,13 @@ HIDDEN_LINK_NAMESPACES = ['Category', 'Image']
 
 class Wikitext2Words(ContentTransformer):
 
-    def __init__(
-        self, hidden_link_namespaces: Iterable[str] = HIDDEN_LINK_NAMESPACES
-    ):
+    def __init__(self, siteinfo):
+        hidden_link_namespace_names = \
+            util.generate_non_link_namespace_names(siteinfo)
+
         forbidden_link_re = \
             r"\[\[(" + \
-            "|".join(hidden_link_namespaces).lower() + \
+            "|".join(hidden_link_namespace_names).lower() + \
             r"):[^\]]+\]\]"
         self.strip_regex = re.compile(
             "|".join(STRIP_WIKITEXT_REs + [forbidden_link_re]))
