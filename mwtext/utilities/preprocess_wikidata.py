@@ -1,7 +1,7 @@
 r"""
 ``$ mwtext preprocess_wikidata -h``
 ::
-    Converts WIkidata JSON dumps to string of property/value pairs.
+    Converts Wikidata XML dumps to string of property/value pairs.
     Usage:
         preprocess_wikidata (-h|--help)
         preprocess_wikidata [<input-file>...]
@@ -9,7 +9,7 @@ r"""
                             [--compress=<type>] [--verbose] [--debug]
     Options:
         -h|--help           Print this documentation
-        <input-file>        The path to a Wikidata JSON Dump file
+        <input-file>        The path to a Wikidata XML Dump file
                             [default: <stdin>]
         --threads=<num>     If a collection of files are provided, how many
                             processor threads? [default: <cpu_count>]
@@ -36,50 +36,43 @@ from ..wikidata_preprocessor import WikidataPreprocessor
 
 def preprocess_wikidata(dump, verbose=False):
     wikidata_preprocessor = WikidataPreprocessor()
-    for item_json in dump:
-        qid = item_json.get('id', None)
-        if not qid:
-            continue
+    for page in dump:
+        for revision in page:
+            if not is_relevant_page(page, revision):
+                continue
+            item_doc = json.loads(revision.text)
+            qid = item_doc.get('id', None)
+            entity = mwbase.Entity.from_json(item_doc)
+            if not is_relevant_entity(entity, qid):
+                continue
 
-        if verbose:
-            sys.stderr.write(qid + ": ")
-            sys.stderr.flush()
+            if verbose:
+                sys.stderr.write(qid + "\n")
+                sys.stderr.flush()
 
-        entity = mwbase.Entity.from_json(item_json)
-        if is_relevant_entity(entity):
-            claims_tuples = []
-            for claim_tuple in wikidata_preprocessor.process(entity):
-                claims_tuples.append(claim_tuple)
-
+            claims_tuples = list(wikidata_preprocessor.process(entity))
             random.shuffle(claims_tuples)
-            claims_str = ' '.join([' '.join(c) for c in claims_tuples])
+            claims_str = ' '.join([' '.join(claim) for claim in claims_tuples])
             yield qid + ": " + claims_str
 
-            if verbose:
-                sys.stderr.write(".")
-                sys.stderr.flush()
-        else:
-            if verbose:
-                sys.stderr.write("-")
-                sys.stderr.flush()
 
-        if verbose:
-            sys.stderr.write("\n")
-            sys.stderr.flush()
+def is_relevant_page(page, revision):
+    return (page.namespace == 0 and
+            revision.model == 'wikibase-item')
 
 
-def is_relevant_entity(entity):
+def is_relevant_entity(entity, qid):
     sitelinks = [l[:-4] for l in list(entity.sitelinks.keys())
                  if l.endswith('wiki') and
                  l != 'commonswiki' and l != 'specieswiki']
-    return (len(sitelinks) > 0)
+    return (len(sitelinks) > 0 and qid != None)
 
 
 streamer = mwcli.Streamer(
     __doc__,
     __name__,
     preprocess_wikidata,
-    file_reader=mwcli.Streamer.read_json,
+    file_reader=mwcli.Streamer.read_xml,
     line_writer=mwcli.Streamer.write_line
 )
 
