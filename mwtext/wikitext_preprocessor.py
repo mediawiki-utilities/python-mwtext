@@ -61,7 +61,7 @@ WORD_RE = r'([^\W\d]|[' + combined_word + r'])' + \
 CJK_RE = (
     r'[' +
         r'\u4E00-\u62FF' +  # noqa Unified Ideographs
-            r'\u6300-\u77FF' +
+            r'\u6300-\u77FF' +  # noqa
             r'\u7800-\u8CFF' +
             r'\u8D00-\u9FCC' +
         r'\u3400-\u4DFF' +  # Unified Ideographs Ext A

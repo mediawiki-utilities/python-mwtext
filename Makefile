@@ -4,9 +4,10 @@
 dump_dir=/mnt/data/xmldatadumps/public
 dump_date=20191201
 vector_dimensions=50
-vector_params=--param 'dim=$(vector_dimensions)' --param 'loss="ova"'
-vocab_limit=100000
-vocab_str=100k
+qt_cutoff=10000
+vector_params=--param 'dim=$(vector_dimensions)' --param 'loss="ova"' --qt_cutoff=$(qt_cutoff)
+vocab_limit=
+vocab_str=10k
 
 
 preprocessed_article_text: \
