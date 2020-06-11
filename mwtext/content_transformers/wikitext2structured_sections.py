@@ -33,20 +33,12 @@ from mwtext.content_transformers import util
 logger = logging.getLogger(__name__)
 
 
-ALLOWED_TAGS = [
+ALLOWED_TAGS = frozenset([
     "b",
     "i",
     "u",
-    "math",
-    "sup",
-]
+])
 
-# there are probably more of these?
-DISALLOWED_TAGS = [
-    "ref",
-    "blockquote",
-    "table",
-]
 
 WikilinkParser = Callable[[Wikilink], Tuple[bool, bool, str, str]]
 
@@ -171,16 +163,18 @@ class Wikitext2StructuredSections(ContentTransformer):
             return
 
         # add the contents of allowed tags to the text stream
-        if node.tag in self.allowed_tags:
-            self._included_tags.add(node.tag.strip_code().strip())
+        node_tag = node.tag.strip_code().strip().lower()
+
+        if node_tag in self.allowed_tags:
+            self._included_tags.add(node_tag)
             text = node.contents.strip_code().strip()
             parse_state["current_text"] += text
 
         # optionally add a single token for disallowed tags
         else:
-            self._skipped_tags.add(node.tag.strip_code().strip())
+            self._skipped_tags.add(node_tag)
             if self.include_disallowed_tag_tokens:
-                text = "<{}>".format(node.tag.strip_code().strip())
+                text = "<{}>".format(node_tag)
                 parse_state["current_text"] += text
 
     def _parse_external_link_node(self, node: ExternalLink, parse_state):
