@@ -3,13 +3,13 @@ Inspiration for test cases drawn from,
 
  * https://en.wikipedia.org/wiki/Help:Wikitext#Links_and_URLs
 """
-from mwtext import Wikitext2StructuredSections
+from mwtext import Wikitext2Structured
 from .wikilink_fixtures import WIKILINK_TEST_FIXTURES
 
 
 def test_wikilinks_only():
     for test_name, test_data in WIKILINK_TEST_FIXTURES.items():
-        transformer = Wikitext2StructuredSections(
+        transformer = Wikitext2Structured(
             forbidden_wikilink_prefixes={"file", "image", "category"})
         structured = transformer.transform(test_data["wikitext"])
 

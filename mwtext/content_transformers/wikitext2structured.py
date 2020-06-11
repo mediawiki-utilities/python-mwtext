@@ -42,9 +42,9 @@ ALLOWED_TAGS = frozenset([
 WikilinkParser = Callable[[Wikilink], Tuple[bool, bool, str, str]]
 
 
-class Wikitext2StructuredSections(ContentTransformer):
+class Wikitext2Structured(ContentTransformer):
 
-    """Wikitext -> Structured Sections using MediaWiki Parser From Hell
+    """Wikitext -> Structured using MediaWiki Parser From Hell
 
     Args:
         forbidden_wikilink_prefixes (Iterable[str]): ignore wikilinks with
@@ -64,6 +64,8 @@ class Wikitext2StructuredSections(ContentTransformer):
             Uses _default_wikilink_parser if None.
         include_external_link_anchors (bool): If True include anchor link
             text from external links in the text stream.
+        max_flattening_rounds (int): max number of iterations in the node
+            flattening preprocessing
     """
     def __init__(
         self,
@@ -388,7 +390,7 @@ if __name__ == "__main__":
     file_path = os.path.join(test_path, "enwiki_siteinfo.json")
     siteinfo = json.load(open(file_path, "r"))
     forbidden_wikilink_prefixes = generate_non_link_namespace_names(siteinfo)
-    transformer = Wikitext2StructuredSections(
+    transformer = Wikitext2Structured(
         forbidden_wikilink_prefixes=forbidden_wikilink_prefixes,
         allowed_tags=frozenset(["b", "i", "u", "blockquote"]),
     )
