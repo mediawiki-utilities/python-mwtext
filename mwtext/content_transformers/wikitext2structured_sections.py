@@ -33,10 +33,16 @@ from mwtext.content_transformers import util
 logger = logging.getLogger(__name__)
 
 
+KEEP_NODE_TYPES = (Text, Wikilink, ExternalLink, Tag, Heading)
 ALLOWED_TAGS = frozenset([
     "b",
     "i",
     "u",
+    "blockquote",
+    "p",
+    "div",
+    "sub",
+    "sup",
 ])
 
 
@@ -73,12 +79,14 @@ class Wikitext2StructuredSections(ContentTransformer):
         include_disallowed_tag_tokens: bool = False,
         custom_wikilink_parser: Optional[WikilinkParser] = None,
         include_external_link_anchors: bool = True,
+        max_flattening_rounds: int = 5,
     ) -> None:
         self.forbidden_wikilink_prefixes = forbidden_wikilink_prefixes
         self.allowed_tags = allowed_tags
         self.include_disallowed_tag_tokens = include_disallowed_tag_tokens
         self.custom_wikilink_parser = custom_wikilink_parser
         self.include_external_link_anchors = include_external_link_anchors
+        self.max_flattening_rounds = max_flattening_rounds
 
         # debug tracking, doesn't add much overhead
         self._included_tags = set()
@@ -99,6 +107,8 @@ class Wikitext2StructuredSections(ContentTransformer):
             structured (dict): structured page data
 
         """
+        do_expensive_logging = logger.isEnabledFor(logging.DEBUG)
+
         parse_state = {
             "section_idx": 0,
             "section_name": "Introduction",
@@ -106,11 +116,28 @@ class Wikitext2StructuredSections(ContentTransformer):
             "current_wikilinks": [],
         }
 
-        wikicode = mwparserfromhell.parse(wikitext)
-        paragraphs = []
-        do_expensive_logging = logger.isEnabledFor(logging.DEBUG)
+        wikicode = mwparserfromhell.parse(wikitext.strip())
+        filtered_nodes = [
+            node for node in wikicode.nodes
+            if isinstance(node, KEEP_NODE_TYPES)]
 
-        for node_idx, node in enumerate(wikicode.nodes):
+        current_nodes = list(filtered_nodes)
+        for iround in range(self.max_flattening_rounds):
+
+            flatter_nodes = []
+            for node in current_nodes:
+                if self.node_is_expandable(node):
+                    flatter_nodes.extend(node.contents.nodes)
+                else:
+                    flatter_nodes.append(node)
+
+            if len(flatter_nodes) == len(current_nodes):
+                break
+
+            current_nodes = list(flatter_nodes)
+
+        paragraphs = []
+        for node in flatter_nodes:
 
             if do_expensive_logging:
                 logger.debug("node=%s, %s", type(node), repr(node))
@@ -141,6 +168,16 @@ class Wikitext2StructuredSections(ContentTransformer):
             "has_disambiguation_template": has_disambigution_template,
         }
 
+    def node_is_expandable(self, node):
+        if (
+                isinstance(node, Tag) and
+                node.tag.lower() in self.allowed_tags and
+                hasattr(node, "contents")
+        ):
+            return True
+        else:
+            return False
+
     def _parse_heading_node(self, node: Heading, parse_state) -> None:
         """Parse heading node.
 
@@ -158,12 +195,16 @@ class Wikitext2StructuredSections(ContentTransformer):
         of the tag but not the contents (e.g. include a single <table> token in the
         text stream but nothing from the table markdown itself).
         """
+
         # never include tags with no content
         if len(node.contents) == 0:
             return
 
         # add the contents of allowed tags to the text stream
         node_tag = node.tag.strip_code().strip().lower()
+
+        if node_tag == "blockquote":
+            sys.exit(1)
 
         if node_tag in self.allowed_tags:
             self._included_tags.add(node_tag)
@@ -344,11 +385,12 @@ if __name__ == "__main__":
     siteinfo = json.load(open(file_path, "r"))
     forbidden_wikilink_prefixes = util.generate_non_link_namespace_names(siteinfo)
     transformer = Wikitext2StructuredSections(
-        forbidden_wikilink_prefixes=forbidden_wikilink_prefixes)
+        forbidden_wikilink_prefixes=forbidden_wikilink_prefixes,
+        allowed_tags=frozenset(["b", "i", "u", "blockquote"]),
+    )
 
     file_path = "../../tests/39_Albedo_953762015.wikitext"
     wikitext = open(file_path, "r").read()
-
     structured = transformer.transform(wikitext)
     filtered_paragraphs = [
         para for para in structured['paragraphs']
