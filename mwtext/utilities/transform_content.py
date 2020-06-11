@@ -128,7 +128,12 @@ def process_args(args):
             args['--wiki-host'], user_agent="mwtext transform_content")
         siteinfo = get_siteinfo(session)
 
-    transformer = Transformer.from_siteinfo(siteinfo)
+    kwarg_params = {}
+    for kv in args['--param']:
+        key, value = process_param(kv)
+        kwarg_params[key] = value
+
+    transformer = Transformer.from_siteinfo(siteinfo, **kwarg_params)
 
     include_redirects = bool(args['--include-redirects'])
 
@@ -151,6 +156,10 @@ def process_args(args):
         'allowed_content_models': allowed_content_models,
         'min_content_length': min_content_length
     }
+
+def process_param(kv):
+    key, value_str = kv.split("=", 1)
+    return key, json.loads(value_str)
 
 
 streamer = mwcli.Streamer(
