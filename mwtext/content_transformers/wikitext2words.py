@@ -1,6 +1,5 @@
 from .content_transformer import ContentTransformer
 from . import util
-
 import re
 
 PLAIN_PROTO = [r'bitcoin', r'geo', r'magnet', r'mailto', r'news', r'sips?',
@@ -99,10 +98,7 @@ HIDDEN_LINK_NAMESPACES = ['Category', 'Image']
 
 class Wikitext2Words(ContentTransformer):
 
-    def __init__(self, siteinfo):
-        hidden_link_namespace_names = \
-            util.generate_non_link_namespace_names(siteinfo)
-
+    def __init__(self, hidden_link_namespace_names):
         forbidden_link_re = \
             r"\[\[(" + \
             "|".join(hidden_link_namespace_names).lower() + \
@@ -117,6 +113,12 @@ class Wikitext2Words(ContentTransformer):
         """
         return list(self._extract_words(content))
 
+    @classmethod
+    def from_siteinfo(cls, siteinfo, *args, **kwargs):
+        hidden_link_namespace_names = \
+            util.generate_non_link_namespace_names(siteinfo)
+        return cls(hidden_link_namespace_names, *args, **kwargs)
+
     def _extract_words(self, text):
         # Strip non-content content
         stripped_text = re.sub(self.strip_regex, "", text.lower())
@@ -125,5 +127,5 @@ class Wikitext2Words(ContentTransformer):
         for replace_regex, replacement in self.replace_regexs:
             stripped_text = re.sub(replace_regex, replacement, stripped_text)
 
-        for match in re.finditer(WORD_OR_CJK_RE, text):
+        for match in re.finditer(WORD_OR_CJK_RE, stripped_text):
             yield match.group(0)
