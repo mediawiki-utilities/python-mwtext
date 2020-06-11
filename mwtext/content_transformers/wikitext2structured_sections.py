@@ -85,15 +85,13 @@ class Wikitext2StructuredSections(ContentTransformer):
         self._included_tags = set()
         self._skipped_tags = set()
 
-
     @classmethod
     def from_siteinfo(cls, siteinfo, *args, **kwargs):
         forbidden_wikilink_prefixes = generate_non_link_namespace_names(siteinfo)
         return cls(
             *args,
-            forbidden_wikilink_prefixes = forbidden_wikilink_prefixes,
+            forbidden_wikilink_prefixes=forbidden_wikilink_prefixes,
             **kwargs)
-
 
     def transform(self, wikitext: str) -> dict:
         """Process wikitext into structured data.
@@ -173,9 +171,9 @@ class Wikitext2StructuredSections(ContentTransformer):
 
     def node_is_expandable(self, node):
         if (
-                isinstance(node, Tag) and
-                node.tag.lower() in self.allowed_tags and
-                hasattr(node, "contents")
+            isinstance(node, Tag) and
+            node.tag.lower() in self.allowed_tags and
+            hasattr(node, "contents")
         ):
             return True
         else:
@@ -315,7 +313,10 @@ class Wikitext2StructuredSections(ContentTransformer):
             if ii == 0:
                 parse_state["current_text"] += text
             else:
-                if parse_state["current_text"] and not parse_state["current_text"].isspace():
+                if (
+                    parse_state["current_text"] and
+                    not parse_state["current_text"].isspace()
+                ):
                     paragraphs_local.append({
                         "text": parse_state["current_text"],
                         "wikilinks": parse_state["current_wikilinks"],
