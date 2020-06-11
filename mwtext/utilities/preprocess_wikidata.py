@@ -2,13 +2,15 @@ r"""
 ``$ mwtext preprocess_wikidata -h``
 ::
     Converts Wikidata XML dumps to string of property/value pairs.
+
     Usage:
         preprocess_wikidata (-h|--help)
         preprocess_wikidata [<input-file>...]
                             [--threads=<num>] [--output=<path>]
                             [--compress=<type>] [--verbose] [--debug]
+
     Options:
-        -h|--help           Print this documentation
+        -h --help           Print this documentation
         <input-file>        The path to a Wikidata XML Dump file
                             [default: <stdin>]
         --threads=<num>     If a collection of files are provided, how many
@@ -50,10 +52,10 @@ def preprocess_wikidata(dump, verbose=False):
                 sys.stderr.write(qid + "\n")
                 sys.stderr.flush()
 
-            claims_tuples = list(wikidata_preprocessor.process(entity))
+            claims_tuples = wikidata_preprocessor.process(entity)
             random.shuffle(claims_tuples)
             claims_str = ' '.join([' '.join(claim) for claim in claims_tuples])
-            yield qid + ": " + claims_str
+            yield claims_str
 
 
 def is_relevant_page(page, revision):
