@@ -9,13 +9,13 @@ def get_siteinfo(session):
     return doc['query']
 
 
-def is_relevant_page(page, revision, allowed_content_types=None,
+def is_relevant_page(page, revision, allowed_content_models=None,
                      allowed_namespaces=None, include_redirects=False,
                      min_content_length=None):
     if revision.text is None:
         return False
-    if allowed_content_types:
-        if revision.model not in allowed_content_types:
+    if allowed_content_models:
+        if revision.model not in allowed_content_models:
             return False
     if allowed_namespaces:
         if page.namespace not in allowed_namespaces:

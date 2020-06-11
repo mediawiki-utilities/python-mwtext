@@ -12,7 +12,7 @@ r"""
                           [--include-redirects]
                           [--namespace=<id>]...
                           [--content-model=<mdl>]...
-                          [--min-content-len=<chrs>]
+                          [--min-content-length=<chrs>]
                           [--siteinfo=<path>]
                           [--wiki-host=<url>]
                           [--threads=<num>] [--output=<path>]
@@ -142,7 +142,7 @@ def process_args(args):
     else:
         allowed_content_models = set(cm for cm in args['--content-model'])
 
-    min_content_length = int(args['--min-content-lenth'])
+    min_content_length = int(args['--min-content-length'])
 
     return {
         'transformer': transformer,
