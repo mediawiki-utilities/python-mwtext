@@ -128,7 +128,7 @@ def process_args(args):
             args['--wiki-host'], user_agent="mwtext transform_content")
         siteinfo = get_siteinfo(session)
 
-    transformer = Transformer(siteinfo)
+    transformer = Transformer.from_siteinfo(siteinfo)
 
     include_redirects = bool(args['--include-redirects'])
 

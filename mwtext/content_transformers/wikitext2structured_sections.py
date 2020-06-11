@@ -84,6 +84,10 @@ class Wikitext2StructuredSections(ContentTransformer):
         self._included_tags = set()
         self._skipped_tags = set()
 
+    @classmethod
+    def from_siteinfo(cls, siteinfo):
+        raise NotImplementedError()
+
     def transform(self, wikitext: str) -> dict:
         """Process wikitext into structured data.
 

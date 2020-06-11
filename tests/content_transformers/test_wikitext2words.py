@@ -1,4 +1,4 @@
-from mwtext import Wikitext2Words
+from mwtext.content_transformers import Wikitext2Words
 
 
 def test_preprocessing_english():
@@ -16,10 +16,10 @@ This is some text.  It should [[show]] up [[pretty:naturally]].{{fact}}
 == Another header ==
 Here is another paragraph.  Nothing [[inane|special]] here.<ref name="wut"/>
 [[Category:foobar]]"""
-    assert list(wtpp.transform(text)) == [
+    assert list(wtpp.transform(text)) == \
         ["this", "is", "some", "text", "it", "should", "show", "up", "pretty",
-         "naturally"],
-        ["here", "is", "another", "paragraph", "nothing", "special", "here"]]
+         "naturally", "here", "is", "another", "paragraph", "nothing",
+         "special", "here"]
 
 
 def test_preprocessing_vietnamese():
@@ -51,7 +51,7 @@ def test_preprocessing_vietnamese():
 [[Thể loại:Nam tiểu thuyết gia Mỹ]]
 """ # Noqa
     print(list(wtpp.transform(text)))
-    assert list(wtpp.transform(text)) == [
+    assert list(wtpp.transform(text)) == \
         ['george', 'walton', 'lucas', 'jr', 'sinh', 'ngày', 'anumber', 'tháng',
          'anumber', 'năm', 'anumber', 'là', 'một', 'nhà', 'sản', 'xuất',
          'phim', 'đạo', 'diễn', 'diễn', 'viên', 'tác', 'giả', 'kịch', 'bản',
@@ -61,7 +61,7 @@ def test_preprocessing_vietnamese():
          'chiến', 'tranh', 'giữa', 'các', 'vì', 'sao', 'và', 'bộ', 'phim',
          'phiêu', 'lưu', 'indiana', 'jones', 'george', 'lucas', 'cũng', 'là',
          'một', 'tỷ', 'phú', 'với', 'tài', 'sản', 'anumber', 'tỷ', 'đô', 'la',
-         'mỹ', 'thống', 'kê', 'năm', 'anumber']]
+         'mỹ', 'thống', 'kê', 'năm', 'anumber']
 
 
 def test_preprocessing_korean():
@@ -91,15 +91,15 @@ def test_preprocessing_korean():
 [[분류:머데스토 출신]]
 """ # Noqa
     print(list(wtpp.transform(text)))
-    assert list(wtpp.transform(text)) == [
+    assert list(wtpp.transform(text)) == \
         ['조지', '월턴', '루카스', '주니어', 'george', 'walton', 'lucas', 'jr',
          '년', '월', '일', '는', '미국의', '영화', '제작자이자', '기업가이다', '스타워즈',
          '와', '인디아나', '존스', '프랜차이즈의', '창작자로', '가장', '유명하며',
          '루카스필름과', '인더스트리얼', '라이트', '매직', '그리고', '스카이워커',
          '사운드등의', '설립자이기도', '하다', '년', '루카스필름을', '월트', '디즈니',
          '컴퍼니에', '매각하기', '전까지는', '루카스필름의', '회장', '겸', '최고경영자',
-         'ceo', '였다'],
-        ['인디아나', '존스', '의', '세', '번째', '시리즈인', '인디아나', '존스와',
+         'ceo', '였다',
+         '인디아나', '존스', '의', '세', '번째', '시리즈인', '인디아나', '존스와',
          '최후의', '성전', '을', '제작한', '뒤', '그', '속편을', '제작하지', '않고',
          '영화에서', '손을', '떼겠다고', '발표하기도', '했다', '당시', '인디아나', '존스',
          '시리즈는', '영화와', '게임으로', '발표하였는데', '네', '번째', '시리즈는',
@@ -110,7 +110,7 @@ def test_preprocessing_korean():
          '원작인지', '불분명하다', '당시', '그', '영화를', '제작하다가', '중단하고',
          '게임을', '제작했으며', '이런', '관점에서는', '영화가', '원작이다', '그러나',
          '년', '개봉된', '영화는', '게임', '내용을', '바탕으로', '처음부터', '다시',
-         '제작했으며', '이런', '관점에서', '게임이', '원작이기', '때문이다']]
+         '제작했으며', '이런', '관점에서', '게임이', '원작이기', '때문이다']
 
 
 def test_preprocessing_arabic():
@@ -162,17 +162,17 @@ def test_preprocessing_arabic():
 [[تصنيف:فاعلو خير في القرن 21]]
 """ # Noqa
     print(list(wtpp.transform(text)))
-    assert list(wtpp.transform(text)) == [
+    assert list(wtpp.transform(text)) == \
         ['جورج', 'لوكاس', 'anumber', 'مايو', 'anumber',
          '،موديستو،', 'كاليفورنيا', '،', 'مخرج', 'وسيناريست', 'ومنتج',
          'اشتهر', 'بإخراجه', 'وإنتاجه', 'لفيلم',
-         'حرب', 'النجوم'],
-        ['جوائز', 'أفضل', 'نص', 'مقتبس', 'عام', 'anumber', 'عن', 'فيلم',
+         'حرب', 'النجوم',
+         'جوائز', 'أفضل', 'نص', 'مقتبس', 'عام', 'anumber', 'عن', 'فيلم',
          'american', 'graffiti', 'أفضل', 'مخرج', 'عام', 'anumber', 'عن',
          'فيلم', 'american', 'graffiti', 'أفضل', 'نص', 'أصلي', 'عام',
          'anumber', 'عن', 'فيلم', 'star', 'wars', 'أفضل', 'مخرج', 'عام',
-         'anumber', 'عن', 'فيلم', 'star', 'wars'],
-        ['أفضل', 'مخرج', 'عام', 'anumber'],
-        ['أفضل', 'مخرج', 'عام', 'anumber', 'عن', 'فيلم', 'american',
-         'graffiti'],
-        ['أفضل', 'مخرج', 'عام', 'anumber', 'عن', 'فيلم', 'star', 'wars']]
+         'anumber', 'عن', 'فيلم', 'star', 'wars',
+         'أفضل', 'مخرج', 'عام', 'anumber',
+         'أفضل', 'مخرج', 'عام', 'anumber', 'عن', 'فيلم', 'american',
+         'graffiti',
+         'أفضل', 'مخرج', 'عام', 'anumber', 'عن', 'فيلم', 'star', 'wars']
