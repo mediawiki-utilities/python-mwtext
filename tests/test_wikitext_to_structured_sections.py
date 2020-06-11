@@ -9,7 +9,8 @@ from .wikilink_fixtures import WIKILINK_TEST_FIXTURES
 
 def test_wikilinks_only():
     for test_name, test_data in WIKILINK_TEST_FIXTURES.items():
-        transformer = Wikitext2StructuredSections()
+        transformer = Wikitext2StructuredSections(
+            forbidden_wikilink_prefixes={"file", "image", "category"})
         structured = transformer.transform(test_data["wikitext"])
 
         actual = {

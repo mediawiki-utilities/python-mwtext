@@ -22,25 +22,30 @@ known issues:
 """
 import logging
 from typing import Callable, Iterable, List, Optional, Tuple
-from .content_transformer import ContentTransformer
 import mwparserfromhell
 from mwparserfromhell.nodes import ExternalLink, Heading, Tag, Text, Wikilink
 from mwparserfromhell.wikicode import Wikicode
+
+from mwtext.content_transformers.content_transformer import ContentTransformer
+from mwtext.content_transformers import util
 
 
 logger = logging.getLogger(__name__)
 
 
-FORBIDDEN_WIKILINK_PREFIXES = [
-    "file:",
-    "image:",
-    "category:",
-]
-
 ALLOWED_TAGS = [
     "b",
     "i",
     "u",
+    "math",
+    "sup",
+]
+
+# there are probably more of these?
+DISALLOWED_TAGS = [
+    "ref",
+    "blockquote",
+    "table",
 ]
 
 WikilinkParser = Callable[[Wikilink], Tuple[bool, bool, str, str]]
@@ -66,10 +71,12 @@ class Wikitext2StructuredSections(ContentTransformer):
               * target: target page title to use
               * anchor: anchor text to use
             Uses _default_wikilink_parser if None.
+        include_external_link_anchors (bool): If True include anchor link
+            text from external links in the text stream.
     """
     def __init__(
         self,
-        forbidden_wikilink_prefixes: Iterable[str] = FORBIDDEN_WIKILINK_PREFIXES,
+        forbidden_wikilink_prefixes: Iterable[str] = frozenset(),
         allowed_tags: Iterable[str] = ALLOWED_TAGS,
         include_disallowed_tag_tokens: bool = False,
         custom_wikilink_parser: Optional[WikilinkParser] = None,
@@ -80,6 +87,10 @@ class Wikitext2StructuredSections(ContentTransformer):
         self.include_disallowed_tag_tokens = include_disallowed_tag_tokens
         self.custom_wikilink_parser = custom_wikilink_parser
         self.include_external_link_anchors = include_external_link_anchors
+
+        # debug tracking, doesn't add much overhead
+        self._included_tags = set()
+        self._skipped_tags = set()
 
     def transform(self, wikitext: str) -> dict:
         """Process wikitext into structured data.
@@ -161,11 +172,13 @@ class Wikitext2StructuredSections(ContentTransformer):
 
         # add the contents of allowed tags to the text stream
         if node.tag in self.allowed_tags:
+            self._included_tags.add(node.tag.strip_code().strip())
             text = node.contents.strip_code().strip()
             parse_state["current_text"] += text
 
         # optionally add a single token for disallowed tags
         else:
+            self._skipped_tags.add(node.tag.strip_code().strip())
             if self.include_disallowed_tag_tokens:
                 text = "<{}>".format(node.tag.strip_code().strip())
                 parse_state["current_text"] += text
@@ -200,7 +213,7 @@ class Wikitext2StructuredSections(ContentTransformer):
             return (False, False, "", "")
 
         if any([
-            target.lower().startswith(prefix)
+            target.lower().startswith(prefix + ":")
             for prefix in self.forbidden_wikilink_prefixes
         ]):
             return (False, False, "", "")
@@ -316,3 +329,37 @@ class Wikitext2StructuredSections(ContentTransformer):
             "{{disambiguation|" in wikitext or
             "{{disambiguation}}" in wikitext)
         return template_bool
+
+
+if __name__ == "__main__":
+
+    import json
+
+    FORBIDDEN_SECTIONS = frozenset([
+        "bibliography",
+        "citations",
+        "external links",
+        "further reading",
+        "other uses",
+        "references",
+        "see also",
+        "source",
+    ])
+
+    file_path = "../../tests/enwiki_siteinfo.json"
+    siteinfo = json.load(open(file_path, "r"))
+    forbidden_wikilink_prefixes = util.generate_non_link_namespace_names(siteinfo)
+    transformer = Wikitext2StructuredSections(
+        forbidden_wikilink_prefixes=forbidden_wikilink_prefixes)
+
+    file_path = "../../tests/39_Albedo_953762015.wikitext"
+    wikitext = open(file_path, "r").read()
+
+    structured = transformer.transform(wikitext)
+    filtered_paragraphs = [
+        para for para in structured['paragraphs']
+        if para["section_name"].lower() not in FORBIDDEN_SECTIONS]
+
+    list_of_paragraph_texts = [el['text'] for el in filtered_paragraphs]
+    one_string = " ".join(list_of_paragraph_texts)
+    list_of_words = one_string.split(" ")
