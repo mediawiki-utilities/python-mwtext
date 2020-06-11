@@ -207,9 +207,6 @@ class Wikitext2StructuredSections(ContentTransformer):
         # add the contents of allowed tags to the text stream
         node_tag = node.tag.strip_code().strip().lower()
 
-        if node_tag == "blockquote":
-            sys.exit(1)
-
         if node_tag in self.allowed_tags:
             self._included_tags.add(node_tag)
             text = node.contents.strip_code().strip()
