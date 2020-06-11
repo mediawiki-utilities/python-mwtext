@@ -12,13 +12,6 @@ paragraph objects is heavily inspired by the approach taken in Wikipedia2Vec
  * https://github.com/earwig/mwparserfromhell
  * https://github.com/wikipedia2vec/wikipedia2vec
 
-
-known issues:
-
- * links inside tags are put into text stream but not link list
-   e.g. ''[[Photometria]]''
-
-
 """
 import logging
 from typing import Callable, Iterable, List, Optional, Tuple
@@ -27,7 +20,7 @@ from mwparserfromhell.nodes import ExternalLink, Heading, Tag, Text, Wikilink
 from mwparserfromhell.wikicode import Wikicode
 
 from mwtext.content_transformers.content_transformer import ContentTransformer
-from mwtext.content_transformers import util
+from mwtext.content_transformers.util import generate_non_link_namespace_names
 
 
 logger = logging.getLogger(__name__)
@@ -92,9 +85,15 @@ class Wikitext2StructuredSections(ContentTransformer):
         self._included_tags = set()
         self._skipped_tags = set()
 
+
     @classmethod
-    def from_siteinfo(cls, siteinfo):
-        raise NotImplementedError()
+    def from_siteinfo(cls, siteinfo, *args, **kwargs):
+        forbidden_wikilink_prefixes = generate_non_link_namespace_names(siteinfo)
+        return cls(
+            *args,
+            forbidden_wikilink_prefixes = forbidden_wikilink_prefixes,
+            **kwargs)
+
 
     def transform(self, wikitext: str) -> dict:
         """Process wikitext into structured data.
@@ -370,6 +369,7 @@ class Wikitext2StructuredSections(ContentTransformer):
 if __name__ == "__main__":
 
     import json
+    import os
 
     FORBIDDEN_SECTIONS = frozenset([
         "bibliography",
@@ -382,15 +382,17 @@ if __name__ == "__main__":
         "source",
     ])
 
-    file_path = "../../tests/enwiki_siteinfo.json"
+    test_path = "../../tests/content_transformers"
+
+    file_path = os.path.join(test_path, "enwiki_siteinfo.json")
     siteinfo = json.load(open(file_path, "r"))
-    forbidden_wikilink_prefixes = util.generate_non_link_namespace_names(siteinfo)
+    forbidden_wikilink_prefixes = generate_non_link_namespace_names(siteinfo)
     transformer = Wikitext2StructuredSections(
         forbidden_wikilink_prefixes=forbidden_wikilink_prefixes,
         allowed_tags=frozenset(["b", "i", "u", "blockquote"]),
     )
 
-    file_path = "../../tests/39_Albedo_953762015.wikitext"
+    file_path = os.path.join(test_path, "39_Albedo_953762015.wikitext")
     wikitext = open(file_path, "r").read()
     structured = transformer.transform(wikitext)
     filtered_paragraphs = [
