@@ -15,13 +15,13 @@ paragraph objects is heavily inspired by the approach taken in Wikipedia2Vec
 """
 import logging
 from typing import Callable, Iterable, List, Optional, Tuple
+
 import mwparserfromhell
 from mwparserfromhell.nodes import ExternalLink, Heading, Tag, Text, Wikilink
 from mwparserfromhell.wikicode import Wikicode
 
 from mwtext.content_transformers.content_transformer import ContentTransformer
 from mwtext.content_transformers.util import generate_non_link_namespace_names
-
 
 logger = logging.getLogger(__name__)
 
@@ -385,7 +385,7 @@ if __name__ == "__main__":
         "source",
     ])
 
-    test_path = "../../tests/content_transformers"
+    test_path = "../../tests/content_transformers/data"
 
     file_path = os.path.join(test_path, "enwiki_siteinfo.json")
     siteinfo = json.load(open(file_path, "r"))

@@ -1,4 +1,4 @@
-pytest
+pytest>=4.6
 flake8
 codecov
 pytest-cov
