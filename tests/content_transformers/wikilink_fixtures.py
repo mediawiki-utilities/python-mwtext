@@ -1,0 +1,116 @@
+WIKILINK_TEST_FIXTURES = {
+    "basic": {
+        "wikitext": "[[target title]]",
+        "plaintext": "target title",
+        "wikilinks": [("Target_title", "target title", 0, 12)],
+        "categories": [],
+    },
+    "rename": {
+        "wikitext": "[[target title|anchor text]]",
+        "plaintext": "anchor text",
+        "wikilinks": [("Target_title", "anchor text", 0, 11)],
+        "categories": [],
+    },
+    "kingdom": {
+        "wikitext": "[[kingdom (biology)]]",
+        "plaintext": "kingdom (biology)",
+        "wikilinks": [("Kingdom_(biology)", "kingdom (biology)", 0, 17)],
+        "categories": [],
+    },
+    "seattle": {
+        "wikitext": "[[Seattle, Washington]]",
+        "plaintext": "Seattle, Washington",
+        "wikilinks": [("Seattle,_Washington", "Seattle, Washington", 0, 19)],
+        "categories": [],
+    },
+    "village": {
+        "wikitext": "[[Wikipedia:Village pump]]",
+        "plaintext": "Village pump",
+        "wikilinks": [],
+        "categories": [],
+    },
+    "style": {
+        "wikitext": "[[Wikipedia:Manual of Style#Links]]",
+        "plaintext": "Manual of Style",
+        "wikilinks": [],
+        "categories": [],
+    },
+    "style2": {
+        "wikitext": "[[Wikipedia:Manual of Style#Italics|Italics]]",
+        "plaintext": "Italics",
+        "wikilinks": [],
+        "categories": [],
+    },
+    "kingdom|": {
+        "wikitext": "[[kingdom (biology)|]]",
+        "plaintext": "kingdom (biology)",
+        "wikilinks": [("Kingdom_(biology)", "kingdom (biology)", 0, 17)],
+        "categories": [],
+    },
+    "seattle|": {
+        "wikitext": "[[Seattle, Washington|]]",
+        "plaintext": "Seattle, Washington",
+        "wikilinks": [("Seattle,_Washington", "Seattle, Washington", 0, 19)],
+        "categories": [],
+    },
+    "village|": {
+        "wikitext": "[[Wikipedia:Village pump|]]",
+        "plaintext": "Village pump",
+        "wikilinks": [],
+        "categories": [],
+    },
+    "style|": {
+        "wikitext": "[[Wikipedia:Manual of Style#Links|]]",
+        "plaintext": "Manual of Style",
+        "wikilinks": [],
+        "categories": [],
+    },
+    "#self": {
+        "wikitext": "[[#Links and URLs]]",
+        "plaintext": "Links and URLs",
+        "wikilinks": [],
+        "categories": [],
+    },
+    "#self|s": {
+        "wikitext": "[[#Links and URLs|Links and URLs]]",
+        "plaintext": "Links and URLs",
+        "wikilinks": [],
+        "categories": [],
+    },
+    "micro-": {
+        "wikitext": "[[micro-]]second",
+        "plaintext": "micro-second",
+        "wikilinks": [('Micro-', 'micro-', 0, 6)],
+        "categories": [],
+    },
+    "micro-nowiki": {
+        "wikitext": "[[micro-]]<nowiki />second",
+        "plaintext": "micro-second",
+        "wikilinks": [('Micro-', 'micro-', 0, 6)],
+        "categories": [],
+    },
+    "category": {
+        "wikitext": "a [[Category:Vowel letters]]",
+        "plaintext": "a",
+        "wikilinks": [],
+        "categories": ["Vowel_letters"],
+    },
+    ":category": {
+        "wikitext": "a [[:Category:Vowel letters]]",
+        "plaintext": "a Vowel letters",
+        "wikilinks": [],
+        "categories": [],
+    },
+    ":category|": {
+        "wikitext": "a [[:Category:Vowel letters|]]",
+        "plaintext": "a Vowel letters",
+        "wikilinks": [],
+        "categories": [],
+    },
+    "nested_file": {
+        "wikitext": "a [[File:Albedo-e hg.svg|thumb|upright=1.3|The percentage of [[diffuse reflection|diffusely reflected]] [[sunlight]] relative to various surface conditions]]", # noqa
+        "plaintext": "a",
+        "wikilinks": [],
+        "categories": [],
+    },
+}
