@@ -1,0 +1,900 @@
+{
+  "entities": {
+    "Q18627581": {
+      "claims": {
+        "P2037": [
+          {
+            "mainsnak": {
+              "datavalue": {
+                "type": "string",
+                "value": "halfak"
+              },
+              "datatype": "external-id",
+              "snaktype": "value",
+              "property": "P2037"
+            },
+            "type": "statement",
+            "rank": "normal",
+            "id": "Q18627581$dca28a4e-45a3-edec-44c1-566e59a306f4"
+          }
+        ],
+        "P864": [
+          {
+            "mainsnak": {
+              "datavalue": {
+                "type": "string",
+                "value": "81430677519"
+              },
+              "datatype": "external-id",
+              "snaktype": "value",
+              "property": "P864"
+            },
+            "type": "statement",
+            "rank": "normal",
+            "id": "Q18627581$c7b2ac36-4fa2-82d8-8da1-052dae4df482"
+          }
+        ],
+        "P69": [
+          {
+            "mainsnak": {
+              "datavalue": {
+                "type": "wikibase-entityid",
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 7726780,
+                  "id": "Q7726780"
+                }
+              },
+              "datatype": "wikibase-item",
+              "snaktype": "value",
+              "property": "P69"
+            },
+            "type": "statement",
+            "rank": "normal",
+            "id": "Q18627581$40a81c55-4475-8bac-654d-716da102a2d2"
+          },
+          {
+            "rank": "normal",
+            "type": "statement",
+            "qualifiers": {
+              "P512": [
+                {
+                  "datatype": "wikibase-item",
+                  "datavalue": {
+                    "type": "wikibase-entityid",
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 752297,
+                      "id": "Q752297"
+                    }
+                  },
+                  "hash": "ea88f50db500cd70c8f9c0fac5b1130d42fd7443",
+                  "snaktype": "value",
+                  "property": "P512"
+                }
+              ],
+              "P812": [
+                {
+                  "datatype": "wikibase-item",
+                  "datavalue": {
+                    "type": "wikibase-entityid",
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 21198,
+                      "id": "Q21198"
+                    }
+                  },
+                  "hash": "d5562fedb2e09a6a9cd227927c3a3c41e1a84fc5",
+                  "snaktype": "value",
+                  "property": "P812"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P512",
+              "P812"
+            ],
+            "id": "Q18627581$343c678d-4759-0400-3fe9-05b42e6ac871",
+            "mainsnak": {
+              "datavalue": {
+                "type": "wikibase-entityid",
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 238101,
+                  "id": "Q238101"
+                }
+              },
+              "datatype": "wikibase-item",
+              "snaktype": "value",
+              "property": "P69"
+            }
+          }
+        ],
+        "P27": [
+          {
+            "mainsnak": {
+              "datavalue": {
+                "type": "wikibase-entityid",
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 30,
+                  "id": "Q30"
+                }
+              },
+              "datatype": "wikibase-item",
+              "snaktype": "value",
+              "property": "P27"
+            },
+            "type": "statement",
+            "rank": "normal",
+            "id": "Q18627581$8416ed94-40fa-63b0-bc32-af47abdb253f"
+          }
+        ],
+        "P735": [
+          {
+            "mainsnak": {
+              "datavalue": {
+                "type": "wikibase-entityid",
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 905085,
+                  "id": "Q905085"
+                }
+              },
+              "datatype": "wikibase-item",
+              "snaktype": "value",
+              "property": "P735"
+            },
+            "type": "statement",
+            "rank": "normal",
+            "id": "Q18627581$3D25710B-A335-45F4-9FC8-516C35A6AB96"
+          }
+        ],
+        "P18": [
+          {
+            "mainsnak": {
+              "datavalue": {
+                "type": "string",
+                "value": "Halfaker, Aaron Sept 2013.jpg"
+              },
+              "datatype": "commonsMedia",
+              "snaktype": "value",
+              "property": "P18"
+            },
+            "type": "statement",
+            "rank": "normal",
+            "id": "Q18627581$47e62916-4495-74f0-5663-c273cf862805"
+          }
+        ],
+        "P1960": [
+          {
+            "mainsnak": {
+              "datavalue": {
+                "type": "string",
+                "value": "wRCqGXcAAAAJ"
+              },
+              "datatype": "external-id",
+              "snaktype": "value",
+              "property": "P1960"
+            },
+            "type": "statement",
+            "rank": "normal",
+            "id": "Q18627581$faa4bd55-4dd7-ba82-ecca-2e1b72bf94c1"
+          }
+        ],
+        "P2038": [
+          {
+            "mainsnak": {
+              "datavalue": {
+                "type": "string",
+                "value": "Aaron_Halfaker"
+              },
+              "datatype": "external-id",
+              "snaktype": "value",
+              "property": "P2038"
+            },
+            "type": "statement",
+            "rank": "normal",
+            "id": "Q18627581$0c1ef122-46e9-d42c-d8c9-4f2dcd808ed2"
+          }
+        ],
+        "P1416": [
+          {
+            "mainsnak": {
+              "datavalue": {
+                "type": "wikibase-entityid",
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 21561406,
+                  "id": "Q21561406"
+                }
+              },
+              "datatype": "wikibase-item",
+              "snaktype": "value",
+              "property": "P1416"
+            },
+            "type": "statement",
+            "rank": "normal",
+            "id": "Q18627581$54a0502d-4d89-5df2-c594-7770287b27b6"
+          }
+        ],
+        "P646": [
+          {
+            "mainsnak": {
+              "datavalue": {
+                "type": "string",
+                "value": "/m/012gbmn4"
+              },
+              "datatype": "external-id",
+              "snaktype": "value",
+              "property": "P646"
+            },
+            "type": "statement",
+            "references": [
+              {
+                "snaks-order": [
+                  "P143"
+                ],
+                "hash": "4fcc151c76513b2c757cfc6c4757a1b1a835a3b1",
+                "snaks": {
+                  "P143": [
+                    {
+                      "datavalue": {
+                        "type": "wikibase-entityid",
+                        "value": {
+                          "entity-type": "item",
+                          "numeric-id": 648625,
+                          "id": "Q648625"
+                        }
+                      },
+                      "datatype": "wikibase-item",
+                      "snaktype": "value",
+                      "property": "P143"
+                    }
+                  ]
+                }
+              }
+            ],
+            "rank": "normal",
+            "id": "Q18627581$A29A440E-5E28-4776-8268-682E7D7C6A0F"
+          }
+        ],
+        "P184": [
+          {
+            "mainsnak": {
+              "datavalue": {
+                "type": "wikibase-entityid",
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 14282656,
+                  "id": "Q14282656"
+                }
+              },
+              "datatype": "wikibase-item",
+              "snaktype": "value",
+              "property": "P184"
+            },
+            "type": "statement",
+            "rank": "normal",
+            "id": "Q18627581$a798ebc4-403d-ceef-3986-71a37677588c"
+          }
+        ],
+        "P856": [
+          {
+            "mainsnak": {
+              "datavalue": {
+                "type": "string",
+                "value": "http://halfaker.info/"
+              },
+              "datatype": "url",
+              "snaktype": "value",
+              "property": "P856"
+            },
+            "type": "statement",
+            "rank": "normal",
+            "id": "Q18627581$527ac698-4085-2685-dcbf-3585d84c81c3"
+          }
+        ],
+        "P2002": [
+          {
+            "mainsnak": {
+              "datavalue": {
+                "type": "string",
+                "value": "halfak"
+              },
+              "datatype": "external-id",
+              "snaktype": "value",
+              "property": "P2002"
+            },
+            "type": "statement",
+            "rank": "normal",
+            "id": "Q18627581$7f19a3c1-445e-d373-60a4-98a4890ee202"
+          }
+        ],
+        "P496": [
+          {
+            "mainsnak": {
+              "datavalue": {
+                "type": "string",
+                "value": "0000-0001-8907-6367"
+              },
+              "datatype": "external-id",
+              "snaktype": "value",
+              "property": "P496"
+            },
+            "type": "statement",
+            "rank": "normal",
+            "id": "Q18627581$d73e9501-487a-8fe4-5149-0af48335e1c9"
+          }
+        ],
+        "P373": [
+          {
+            "mainsnak": {
+              "datavalue": {
+                "type": "string",
+                "value": "Aaron Halfaker"
+              },
+              "datatype": "string",
+              "snaktype": "value",
+              "property": "P373"
+            },
+            "type": "statement",
+            "rank": "normal",
+            "id": "Q18627581$8e59b8df-4071-6149-a7c9-668c42c41073"
+          }
+        ],
+        "P569": [
+          {
+            "mainsnak": {
+              "datavalue": {
+                "type": "time",
+                "value": {
+                  "time": "+1983-12-27T00:00:00Z",
+                  "after": 0,
+                  "timezone": 0,
+                  "calendarmodel": "http://www.wikidata.org/entity/Q1985727",
+                  "before": 0,
+                  "precision": 11
+                }
+              },
+              "datatype": "time",
+              "snaktype": "value",
+              "property": "P569"
+            },
+            "type": "statement",
+            "rank": "normal",
+            "id": "Q18627581$feacf3b6-4e2b-74ee-89d8-cd697f3fc56b"
+          }
+        ],
+        "P800": [
+          {
+            "mainsnak": {
+              "datavalue": {
+                "type": "wikibase-entityid",
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 21679410,
+                  "id": "Q21679410"
+                }
+              },
+              "datatype": "wikibase-item",
+              "snaktype": "value",
+              "property": "P800"
+            },
+            "type": "statement",
+            "rank": "normal",
+            "id": "Q18627581$205d6e9c-437e-8120-4b23-fe90d68b77c2"
+          }
+        ],
+        "P106": [
+          {
+            "mainsnak": {
+              "datavalue": {
+                "type": "wikibase-entityid",
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 82594,
+                  "id": "Q82594"
+                }
+              },
+              "datatype": "wikibase-item",
+              "snaktype": "value",
+              "property": "P106"
+            },
+            "type": "statement",
+            "rank": "normal",
+            "id": "Q18627581$29cc2c85-41f2-eeed-4e9a-934327f8dae7"
+          }
+        ],
+        "P21": [
+          {
+            "mainsnak": {
+              "datavalue": {
+                "type": "wikibase-entityid",
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 6581097,
+                  "id": "Q6581097"
+                }
+              },
+              "datatype": "wikibase-item",
+              "snaktype": "value",
+              "property": "P21"
+            },
+            "type": "statement",
+            "rank": "normal",
+            "id": "Q18627581$a8b40ad7-42e1-8bd1-3ba1-80c07c3728eb"
+          }
+        ],
+        "P108": [
+          {
+            "mainsnak": {
+              "datavalue": {
+                "type": "wikibase-entityid",
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 180,
+                  "id": "Q180"
+                }
+              },
+              "datatype": "wikibase-item",
+              "snaktype": "value",
+              "property": "P108"
+            },
+            "type": "statement",
+            "rank": "normal",
+            "id": "Q18627581$0dc9c073-4ef6-6b86-42e8-0ec5c31226e0"
+          }
+        ],
+        "P19": [
+          {
+            "mainsnak": {
+              "datavalue": {
+                "type": "wikibase-entityid",
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 986681,
+                  "id": "Q986681"
+                }
+              },
+              "datatype": "wikibase-item",
+              "snaktype": "value",
+              "property": "P19"
+            },
+            "type": "statement",
+            "rank": "normal",
+            "id": "Q18627581$2c458349-441c-57f5-4a5a-067765af1bab"
+          }
+        ],
+        "P31": [
+          {
+            "mainsnak": {
+              "datavalue": {
+                "type": "wikibase-entityid",
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 5,
+                  "id": "Q5"
+                }
+              },
+              "datatype": "wikibase-item",
+              "snaktype": "value",
+              "property": "P31"
+            },
+            "type": "statement",
+            "references": [
+              {
+                "snaks-order": [
+                  "P143"
+                ],
+                "hash": "7eb64cf9621d34c54fd4bd040ed4b61a88c4a1a0",
+                "snaks": {
+                  "P143": [
+                    {
+                      "datavalue": {
+                        "type": "wikibase-entityid",
+                        "value": {
+                          "entity-type": "item",
+                          "numeric-id": 328,
+                          "id": "Q328"
+                        }
+                      },
+                      "datatype": "wikibase-item",
+                      "snaktype": "value",
+                      "property": "P143"
+                    }
+                  ]
+                }
+              }
+            ],
+            "rank": "normal",
+            "id": "Q18627581$34a1ae69-4dd4-6b88-f440-1de24fc887d8"
+          }
+        ],
+        "P1153": [
+          {
+            "mainsnak": {
+              "datavalue": {
+                "type": "string",
+                "value": "35302036800"
+              },
+              "datatype": "external-id",
+              "snaktype": "value",
+              "property": "P1153"
+            },
+            "type": "statement",
+            "rank": "normal",
+            "id": "Q18627581$e8291706-4c87-99bf-8137-b9ee1bd00687"
+          }
+        ],
+        "P990": [
+          {
+            "rank": "normal",
+            "type": "statement",
+            "qualifiers": {
+              "P364": [
+                {
+                  "datatype": "wikibase-item",
+                  "datavalue": {
+                    "type": "wikibase-entityid",
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 1860,
+                      "id": "Q1860"
+                    }
+                  },
+                  "hash": "c78f773acd5268026c9b30b2cf356cd9909324e2",
+                  "snaktype": "value",
+                  "property": "P364"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P364"
+            ],
+            "id": "Q18627581$36005624-4c6b-d026-f8e2-1cd933a9c49f",
+            "mainsnak": {
+              "hash": "c14601921cd0992aca86bb28c721f1f70ffa6801",
+              "datavalue": {
+                "value": "Aaron Halfaker.voice recording.oga",
+                "type": "string"
+              },
+              "property": "P990",
+              "snaktype": "value"
+            }
+          }
+        ]
+      },
+      "sitelinks": {
+        "commonswiki": {
+          "site": "commonswiki",
+          "url": "https://commons.wikimedia.org/wiki/Category:Aaron_Halfaker",
+          "badges": [],
+          "title": "Category:Aaron Halfaker"
+        },
+        "enwiki": {
+          "site": "enwiki",
+          "url": "https://en.wikipedia.org/wiki/Aaron_Halfaker",
+          "badges": [],
+          "title": "Aaron Halfaker"
+        }
+      },
+      "id": "Q18627581",
+      "lastrevid": 424539371,
+      "type": "item",
+      "ns": 0,
+      "aliases": [],
+      "title": "Q18627581",
+      "modified": "2017-01-05T16:30:57Z",
+      "descriptions": {
+        "en": {
+          "language": "en",
+          "value": "American computer scientist"
+        },
+        "en-gb": {
+          "language": "en-gb",
+          "value": "American computer scientist"
+        },
+        "nl": {
+          "language": "nl",
+          "value": "Amerikaans informaticus"
+        }
+      },
+      "labels": {
+        "it": {
+          "language": "it",
+          "value": "Aaron Halfaker"
+        },
+        "hr": {
+          "language": "hr",
+          "value": "Aaron Halfaker"
+        },
+        "cy": {
+          "language": "cy",
+          "value": "Aaron Halfaker"
+        },
+        "vi": {
+          "language": "vi",
+          "value": "Aaron Halfaker"
+        },
+        "eo": {
+          "language": "eo",
+          "value": "Aaron Halfaker"
+        },
+        "es": {
+          "language": "es",
+          "value": "Aaron Halfaker"
+        },
+        "io": {
+          "language": "io",
+          "value": "Aaron Halfaker"
+        },
+        "sk": {
+          "language": "sk",
+          "value": "Aaron Halfaker"
+        },
+        "wo": {
+          "language": "wo",
+          "value": "Aaron Halfaker"
+        },
+        "sr-el": {
+          "language": "sr-el",
+          "value": "Aaron Halfaker"
+        },
+        "nb": {
+          "language": "nb",
+          "value": "Aaron Halfaker"
+        },
+        "nds-nl": {
+          "language": "nds-nl",
+          "value": "Aaron Halfaker"
+        },
+        "hu": {
+          "language": "hu",
+          "value": "Aaron Halfaker"
+        },
+        "pt-br": {
+          "language": "pt-br",
+          "value": "Aaron Halfaker"
+        },
+        "wa": {
+          "language": "wa",
+          "value": "Aaron Halfaker"
+        },
+        "sc": {
+          "language": "sc",
+          "value": "Aaron Halfaker"
+        },
+        "nap": {
+          "language": "nap",
+          "value": "Aaron Halfaker"
+        },
+        "sw": {
+          "language": "sw",
+          "value": "Aaron Halfaker"
+        },
+        "ca": {
+          "language": "ca",
+          "value": "Aaron Halfaker"
+        },
+        "is": {
+          "language": "is",
+          "value": "Aaron Halfaker"
+        },
+        "ga": {
+          "language": "ga",
+          "value": "Aaron Halfaker"
+        },
+        "gsw": {
+          "language": "gsw",
+          "value": "Aaron Halfaker"
+        },
+        "af": {
+          "language": "af",
+          "value": "Aaron Halfaker"
+        },
+        "co": {
+          "language": "co",
+          "value": "Aaron Halfaker"
+        },
+        "rm": {
+          "language": "rm",
+          "value": "Aaron Halfaker"
+        },
+        "an": {
+          "language": "an",
+          "value": "Aaron Halfaker"
+        },
+        "min": {
+          "language": "min",
+          "value": "Aaron Halfaker"
+        },
+        "cs": {
+          "language": "cs",
+          "value": "Aaron Halfaker"
+        },
+        "pl": {
+          "language": "pl",
+          "value": "Aaron Halfaker"
+        },
+        "gl": {
+          "language": "gl",
+          "value": "Aaron Halfaker"
+        },
+        "id": {
+          "language": "id",
+          "value": "Aaron Halfaker"
+        },
+        "eu": {
+          "language": "eu",
+          "value": "Aaron Halfaker"
+        },
+        "de-ch": {
+          "language": "de-ch",
+          "value": "Aaron Halfaker"
+        },
+        "vec": {
+          "language": "vec",
+          "value": "Aaron Halfaker"
+        },
+        "kg": {
+          "language": "kg",
+          "value": "Aaron Halfaker"
+        },
+        "sco": {
+          "language": "sco",
+          "value": "Aaron Halfaker"
+        },
+        "en": {
+          "language": "en",
+          "value": "Aaron Halfaker"
+        },
+        "fr": {
+          "language": "fr",
+          "value": "Aaron Halfaker"
+        },
+        "en-gb": {
+          "language": "en-gb",
+          "value": "Aaron Halfaker"
+        },
+        "li": {
+          "language": "li",
+          "value": "Aaron Halfaker"
+        },
+        "bar": {
+          "language": "bar",
+          "value": "Aaron Halfaker"
+        },
+        "oc": {
+          "language": "oc",
+          "value": "Aaron Halfaker"
+        },
+        "frp": {
+          "language": "frp",
+          "value": "Aaron Halfaker"
+        },
+        "nds": {
+          "language": "nds",
+          "value": "Aaron Halfaker"
+        },
+        "fi": {
+          "language": "fi",
+          "value": "Aaron Halfaker"
+        },
+        "vo": {
+          "language": "vo",
+          "value": "Aaron Halfaker"
+        },
+        "ast": {
+          "language": "ast",
+          "value": "Aaron Halfaker"
+        },
+        "br": {
+          "language": "br",
+          "value": "Aaron Halfaker"
+        },
+        "da": {
+          "language": "da",
+          "value": "Aaron Halfaker"
+        },
+        "gd": {
+          "language": "gd",
+          "value": "Aaron Halfaker"
+        },
+        "lij": {
+          "language": "lij",
+          "value": "Aaron Halfaker"
+        },
+        "en-ca": {
+          "language": "en-ca",
+          "value": "Aaron Halfaker"
+        },
+        "zu": {
+          "language": "zu",
+          "value": "Aaron Halfaker"
+        },
+        "et": {
+          "language": "et",
+          "value": "Aaron Halfaker"
+        },
+        "pt": {
+          "language": "pt",
+          "value": "Aaron Halfaker"
+        },
+        "ms": {
+          "language": "ms",
+          "value": "Aaron Halfaker"
+        },
+        "sv": {
+          "language": "sv",
+          "value": "Aaron Halfaker"
+        },
+        "nrm": {
+          "language": "nrm",
+          "value": "Aaron Halfaker"
+        },
+        "scn": {
+          "language": "scn",
+          "value": "Aaron Halfaker"
+        },
+        "nn": {
+          "language": "nn",
+          "value": "Aaron Halfaker"
+        },
+        "pcd": {
+          "language": "pcd",
+          "value": "Aaron Halfaker"
+        },
+        "lb": {
+          "language": "lb",
+          "value": "Aaron Halfaker"
+        },
+        "de-at": {
+          "language": "de-at",
+          "value": "Aaron Halfaker"
+        },
+        "vls": {
+          "language": "vls",
+          "value": "Aaron Halfaker"
+        },
+        "sl": {
+          "language": "sl",
+          "value": "Aaron Halfaker"
+        },
+        "fur": {
+          "language": "fur",
+          "value": "Aaron Halfaker"
+        },
+        "pms": {
+          "language": "pms",
+          "value": "Aaron Halfaker"
+        },
+        "nl": {
+          "language": "nl",
+          "value": "Aaron Halfaker"
+        },
+        "ro": {
+          "language": "ro",
+          "value": "Aaron Halfaker"
+        },
+        "de": {
+          "language": "de",
+          "value": "Aaron Halfaker"
+        },
+        "mg": {
+          "language": "mg",
+          "value": "Aaron Halfaker"
+        },
+        "ie": {
+          "language": "ie",
+          "value": "Aaron Halfaker"
+        },
+        "ia": {
+          "language": "ia",
+          "value": "Aaron Halfaker"
+        }
+      },
+      "pageid": 20158765
+    }
+  }
+}

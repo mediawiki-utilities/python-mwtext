@@ -9,6 +9,7 @@ r"""
         transform_content (-h|--help)
         transform_content <content-transformer> [<input-file>...]
                           [--parameter=<kv>]...
+                          [--include=<func>]
                           [--include-redirects]
                           [--namespace=<id>]...
                           [--content-model=<mdl>]...
@@ -28,6 +29,10 @@ r"""
                             <kv> takes the form of "<key>=<value>" where <key>
                             is a legal python argument name and <value> is JSON
                             encoded data.
+        --include=<func>    Classpath for a module containing an "include"
+                            to run against each revision to determine if it
+                            should be processed. If set, only revisions for
+                            which the function returns true will be included.
         --include-redirects  If set, include redirects
         --namespace=<id>    Limit processing to this namespace.  Can be
                             repeated to select for multiple namespaces.
@@ -62,6 +67,7 @@ import mwcli
 import mwcli.files
 import yamlconf
 
+from ..filter_functions import all_pages_and_revisions
 from .util import get_siteinfo, is_relevant_page
 
 logger = logging.getLogger(__name__)
@@ -69,7 +75,7 @@ REDIRECT_RE = re.compile("#redirect", re.I)
 
 
 def transform_content(
-        dump, transformer, allowed_namespaces=None,
+        dump, transformer, include_criteria=None, allowed_namespaces=None,
         allowed_content_models=None, include_redirects=False,
         min_content_length=None, verbose=False):
 
@@ -82,7 +88,8 @@ def transform_content(
 
         for revision in page:
             relevant = is_relevant_page(
-                page, revision, allowed_namespaces=allowed_namespaces,
+                page, revision, include_criteria=include_criteria,
+                allowed_namespaces=allowed_namespaces,
                 allowed_content_models=allowed_content_models,
                 include_redirects=include_redirects,
                 min_content_length=min_content_length)
@@ -135,6 +142,15 @@ def process_args(args):
 
     transformer = Transformer.from_siteinfo(siteinfo, **kwarg_params)
 
+    if args['--include']:
+        try:
+            include_criteria = yamlconf.import_path(args['--include'])
+        except ImportError:
+            include_criteria = yamlconf.import_path(
+                "mwtext.filter_functions." + args['--include'])
+    else:
+        include_criteria = all_pages_and_revisions
+
     include_redirects = bool(args['--include-redirects'])
 
     if len(args['--namespace']) == 0:
@@ -151,6 +167,7 @@ def process_args(args):
 
     return {
         'transformer': transformer,
+        'include_criteria': include_criteria,
         'include_redirects': include_redirects,
         'allowed_namespaces': allowed_namespaces,
         'allowed_content_models': allowed_content_models,
