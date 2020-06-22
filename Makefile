@@ -5,7 +5,7 @@ dump_dir=/mnt/data/xmldatadumps/public
 dump_date=20200501
 vector_dimensions=50
 qt_cutoff=10000
-vector_params=--param 'dim=$(vector_dimensions)' --param 'loss="ova"' --qt_cutoff=$(qt_cutoff)
+vector_params=--param 'dim=$(vector_dimensions)' --param 'loss="ova"' --qt-cutoff=$(qt_cutoff)
 vocab_limit=
 vocab_str=10k
 
@@ -55,7 +55,7 @@ datasets/arwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2: 
 
 datasets/arwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.$(vocab_str).kv: \
 		datasets/arwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2
-	./utility word2vec2gensim $^ $@ --limit=$(vocab_limit)
+	./utility word2vec2gensim $^ $@
 
 
 datasets/cswiki-$(dump_date)-revdocs-with-words.json.bz2:
@@ -78,7 +78,7 @@ datasets/cswiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2: 
 
 datasets/cswiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.$(vocab_str).kv: \
 		datasets/cswiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2
-	./utility word2vec2gensim $^ $@ --limit=$(vocab_limit)
+	./utility word2vec2gensim $^ $@
 
 datasets/cswiki-$(dump_date)-preprocessed_article_text.w_labels.txt: \
 		datasets/enwiki.labeled_article_items.json.bz2
@@ -108,7 +108,7 @@ datasets/enwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2: 
 
 datasets/enwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.$(vocab_str).kv: \
 		datasets/enwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2
-	./utility word2vec2gensim $^ $@ --limit=$(vocab_limit)
+	./utility word2vec2gensim $^ $@
 
 
 datasets/kowiki-$(dump_date)-revdocs-with-words.json.bz2:
@@ -131,7 +131,7 @@ datasets/kowiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2: 
 
 datasets/kowiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.$(vocab_str).kv: \
 		datasets/kowiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2
-	./utility word2vec2gensim $^ $@ --limit=$(vocab_limit)
+	./utility word2vec2gensim $^ $@
 
 datasets/kowiki-$(dump_date)-preprocessed_article_text.w_labels.txt: \
 		datasets/enwiki.labeled_article_items.json.bz2
@@ -161,4 +161,4 @@ datasets/viwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2: 
 
 datasets/viwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.$(vocab_str).kv: \
 		datasets/viwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2
-	./utility word2vec2gensim $^ $@ --limit=$(vocab_limit)
+	./utility word2vec2gensim $^ $@
