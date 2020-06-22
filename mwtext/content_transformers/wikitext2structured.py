@@ -320,7 +320,7 @@ class Wikitext2Structured(ContentTransformer):
                     not parse_state["current_text"].isspace()
                 ):
                     paragraphs_local.append({
-                        "text": parse_state["current_text"],
+                        "plaintext": parse_state["current_text"],
                         "wikilinks": parse_state["current_wikilinks"],
                         "section_idx": parse_state["section_idx"],
                         "section_name": parse_state["section_name"]})
