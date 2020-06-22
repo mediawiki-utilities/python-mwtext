@@ -3,3 +3,4 @@ mwcli
 mwapi
 mwbase
 mwparserfromhell>=0.5,<0.6
+fasttext
