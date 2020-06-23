@@ -385,7 +385,7 @@ if __name__ == "__main__":
         "source",
     ])
 
-    test_path = "../../tests/content_transformers/data"
+    test_path = "../../tests/content_transformers"
 
     file_path = os.path.join(test_path, "enwiki_siteinfo.json")
     siteinfo = json.load(open(file_path, "r"))
@@ -395,13 +395,13 @@ if __name__ == "__main__":
         allowed_tags=frozenset(["b", "i", "u", "blockquote"]),
     )
 
-    file_path = os.path.join(test_path, "39_Albedo_953762015.wikitext")
+    file_path = os.path.join(test_path, "data", "39_Albedo_953762015.wikitext")
     wikitext = open(file_path, "r").read()
     structured = transformer.transform(wikitext)
     filtered_paragraphs = [
         para for para in structured['paragraphs']
         if para["section_name"].lower() not in FORBIDDEN_SECTIONS]
 
-    list_of_paragraph_texts = [el['text'] for el in filtered_paragraphs]
+    list_of_paragraph_texts = [el['plaintext'] for el in filtered_paragraphs]
     one_string = " ".join(list_of_paragraph_texts)
     list_of_words = one_string.split(" ")
