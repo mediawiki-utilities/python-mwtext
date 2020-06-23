@@ -1,22 +1,42 @@
 import json
-import random
+import re
+from itertools import chain
 
+import mwapi
 import mwbase
 
 from .content_transformer import ContentTransformer
 
 
 class Wikidata2Words(ContentTransformer):
+
+    def __init__(self, ordered_pids=None):
+        ordered_pids = ordered_pids if ordered_pids is not None else []
+        self.pid_order_map = {pid: i for i, pid in enumerate(ordered_pids)}
+
     @classmethod
     def from_siteinfo(cls, siteinfo, *args, **kwargs):
-        return cls(*args, **kwargs)
+        session = mwapi.Session(
+            "https:" + siteinfo['general']['server'],
+            "Wikidata2Words transformer")
+        doc = session.get(
+            action="parse",
+            page="MediaWiki:Wikibase-SortedProperties",
+            prop="wikitext")
+        wikitext = doc['parse']['wikitext']['*']
+        ordered_pids = re.findall('P[0-9]+', wikitext)
+        return cls(ordered_pids, *args, **kwargs)
 
     def transform(self, content):
         doc = json.loads(content)
         entity = mwbase.Entity.from_json(doc)
         claims_tuples = list(self._extract_property_values(entity))
-        random.shuffle(claims_tuples)
-        return claims_tuples
+        claims_tuples.sort(key=self.get_claim_pid_index)
+        return list(chain(*claims_tuples))
+
+    def get_claim_pid_index(self, claims_tuple):
+        pid = claims_tuple[0]
+        return self.pid_order_map.get(pid, len(self.pid_order_map))
 
     @staticmethod
     def _extract_property_values(entity):
