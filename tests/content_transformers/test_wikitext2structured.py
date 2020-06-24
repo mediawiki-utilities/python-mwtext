@@ -4,6 +4,7 @@ Inspiration for test cases drawn from,
  * https://en.wikipedia.org/wiki/Help:Wikitext#Links_and_URLs
 """
 from mwtext import Wikitext2Structured
+
 from .wikilink_fixtures import WIKILINK_TEST_FIXTURES
 
 
