@@ -5,3 +5,4 @@ for statistical and machine learning purposes.
 
 ## Authors
 - Aaron Halfaker - https://github.com/halfak
+- Gabriel Altay - https://github.com/galtay
