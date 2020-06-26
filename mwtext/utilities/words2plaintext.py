@@ -106,10 +106,16 @@ def create_label_map(f, title_lang, label_field):
         ob = json.loads(line)
 
         # Get title
-        if title_lang not in ob['sitelinks']:
-            continue
+        if title_lang == "wikidata":
+            if ob['qid'] is None:
+                continue
+            else:
+                page_name = ob['qid']
         else:
-            page_name = ob['sitelinks'][title_lang]
+            if title_lang not in ob['sitelinks']:
+                continue
+            else:
+                page_name = ob['sitelinks'][title_lang]
 
         # Get labels
         label_ids = set()
