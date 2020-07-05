@@ -15,21 +15,24 @@ preprocessed_article_text: \
 		datasets/cswiki-$(dump_date)-plaintext.w_labels.txt \
 		datasets/enwiki-$(dump_date)-plaintext.w_labels.txt \
 		datasets/kowiki-$(dump_date)-plaintext.w_labels.txt \
-		datasets/viwiki-$(dump_date)-plaintext.w_labels.txt
+		datasets/viwiki-$(dump_date)-plaintext.w_labels.txt \
+		datasets/wikidata-$(dump_date)-plaintext.w_labels.txt
 
 learned_vectors: \
 		datasets/arwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2 \
 		datasets/cswiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2 \
 		datasets/enwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2 \
 		datasets/kowiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2 \
-		datasets/viwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2
+		datasets/viwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2 \
+		datasets/wikidata-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2
 
 gensim_vectors: \
 		datasets/arwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.$(vocab_str).kv \
 		datasets/cswiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.$(vocab_str).kv \
 		datasets/enwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.$(vocab_str).kv \
 		datasets/kowiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.$(vocab_str).kv \
-		datasets/viwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.$(vocab_str).kv
+		datasets/viwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.$(vocab_str).kv \
+		datasets/wikidata-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.$(vocab_str).kv
 
 datasets/enwiki.labeled_article_items.json.bz2:
 	wget https://analytics.wikimedia.org/published/datasets/archive/public-datasets/all/ores/topic/enwiki-20191201-labeled_article_items.json.bz2 -qO- > $@
@@ -161,4 +164,27 @@ datasets/viwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2: 
 
 datasets/viwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.$(vocab_str).kv: \
 		datasets/viwiki-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2
+	./utility word2vec2gensim $^ $@
+
+
+datasets/wikidata-$(dump_date)-revdocs-with-words.json.bz2:
+	./utility transform_content Wikidata2Words $(dump_dir)/wikidatawiki/$(dump_date)/wikidatawiki-$(dump_date)-pages-articles[!-]*.xml-*.bz2 \
+	 --namespace 0 \
+	 --min-content-length 0 \
+	 --wiki-host https://www.wikidata.org \
+	 --debug | bzip2 -c > $@
+
+datasets/wikidata-$(dump_date)-plaintext.w_labels.txt: \
+		datasets/wikidata-$(dump_date)-revdocs-with-words.json.bz2 \
+		datasets/enwiki.labeled_article_items.json.bz2
+	bzcat $< | ./utility words2plaintext \
+	 --labels datasets/enwiki.labeled_article_items.json.bz2 \
+	 --title-lang wikidata > $@
+
+datasets/wikidata-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2: \
+		datasets/wikidata-$(dump_date)-plaintext.w_labels.txt
+	./utility learn_vectors $^ $(vector_params) | bzip2 -c > $@
+
+datasets/wikidata-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.$(vocab_str).kv: \
+		datasets/wikidata-$(dump_date)-learned_vectors.$(vector_dimensions)_cell.vec.bz2
 	./utility word2vec2gensim $^ $@
