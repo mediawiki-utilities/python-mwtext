@@ -172,6 +172,7 @@ datasets/wikidata-$(dump_date)-revdocs-with-words.json.bz2:
 	 --namespace 0 \
 	 --min-content-length 0 \
 	 --wiki-host https://www.wikidata.org \
+	 --include wikidata_items_with_wikipedia_sitelinks \
 	 --debug | bzip2 -c > $@
 
 datasets/wikidata-$(dump_date)-plaintext.w_labels.txt: \
