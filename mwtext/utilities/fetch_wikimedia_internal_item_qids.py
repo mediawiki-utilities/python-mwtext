@@ -9,7 +9,7 @@ def get_qids():
     url = "https://query.wikidata.org/sparql"
     query = """SELECT ?subclasses
                 WHERE
-                { 
+                {
                   # any subclass of "Wikimedia internal item"
                   ?subclasses wdt:P279* wd:Q17442446.
                 }

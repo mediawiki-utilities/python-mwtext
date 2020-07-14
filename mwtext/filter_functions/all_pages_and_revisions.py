@@ -1,2 +1,4 @@
-def include(page, revision):
-    return True
+def build_include():
+    def include(page, revision):
+        return True
+    return include

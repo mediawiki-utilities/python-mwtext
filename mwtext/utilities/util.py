@@ -28,7 +28,7 @@ def is_relevant_page(page, revision, include_criteria=None,
         if len(revision.text) < min_content_length:
             return False
     if include_criteria:
-        if not include_criteria.include(page, revision):
+        if not include_criteria(page, revision):
             return False
 
     return True
