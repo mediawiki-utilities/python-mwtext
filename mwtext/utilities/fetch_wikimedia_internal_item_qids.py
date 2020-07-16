@@ -32,3 +32,6 @@ def main():
     qids = get_qids()
     for qid in qids:
         sys.stdout.write(qid + "\n")
+
+
+main()

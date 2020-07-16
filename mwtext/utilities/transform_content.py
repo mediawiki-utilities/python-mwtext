@@ -144,13 +144,12 @@ def process_args(args):
 
     if args['--include']:
         try:
-            build_include_criteria = yamlconf.import_path(args['--include'])
+            include_criteria = yamlconf.import_path(args['--include'])
         except ImportError:
-            build_include_criteria = yamlconf.import_path(
+            include_criteria = yamlconf.import_path(
                 "mwtext.filter_functions." + args['--include'])
     else:
-        build_include_criteria = all_pages_and_revisions.build_include
-    include_criteria = build_include_criteria()
+        include_criteria = all_pages_and_revisions
 
     include_redirects = bool(args['--include-redirects'])
 
