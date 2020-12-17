@@ -23,7 +23,7 @@ replace_res = [
     # Replace headers with a paragraph break
     (re.compile(r"(^|\n)==+[^=]+==+"), "\n\n"),
     # External links with display text
-    (re.compile(r"\[" + lexicon.url + r"( ([^\]]+))?\]"), "ONE"), #r"\2"),
+    (re.compile(r"\[" + lexicon.url + r"( ([^\]]+))?\]"), "ONE"), #r"\5"),
     #  Wiki links without display text
     (re.compile(r"\[\[([^\]\|]+)\]\]"), "TWO"), #r"\1"),
     # Wiki links with display text
@@ -59,25 +59,13 @@ class Wikitext2Words(ContentTransformer):
             util.generate_non_link_namespace_names(siteinfo)
         return cls(hidden_link_namespace_names, *args, **kwargs)
 
-    def _extract_words(self, text):
-        # I tried changing the order of operations - did not work
-        # Process links and stuff.
-        for replace_regex, replacement in self.replace_regexs:
-            stripped_text = re.sub(replace_regex, replacement, text)
-
-        # Strip non-content content
-        stripped_text = re.sub(self.strip_regex, "", stripped_text.lower())
-        
-        ##########################################################
-
-        """        
+    def _extract_words(self, text):      
         # Strip non-content content
         stripped_text = re.sub(self.strip_regex, "", text.lower())
 
         # Process links and stuff.
         for replace_regex, replacement in self.replace_regexs:
             stripped_text = re.sub(replace_regex, replacement, stripped_text)
-        """
 
         extracted_words = []
         for match in re.finditer(word_or_cjk, stripped_text):
