@@ -1,7 +1,8 @@
 from .content_transformer import ContentTransformer
 from . import util
 import re
-from deltas.tokenizers import lexicon
+from deltas.deltas.tokenizers import lexicon
+import deltas.deltas.tokenizers.cjk_tokenization as cjk_tokenization
 
 strip_wikitext = [
     r"<!--.*?-->",  # no commented out text
@@ -22,11 +23,11 @@ replace_res = [
     # Replace headers with a paragraph break
     (re.compile(r"(^|\n)==+[^=]+==+"), "\n\n"),
     # External links with display text
-    (re.compile(r"\[" + lexicon.url + r"( ([^\]]+))?\]"), r"\5"),
+    (re.compile(r"\[" + lexicon.url + r"( ([^\]]+))?\]"), "ONE"), #r"\2"),
     #  Wiki links without display text
-    (re.compile(r"\[\[([^\]\|]+)\]\]"), r"\1"),
+    (re.compile(r"\[\[([^\]\|]+)\]\]"), "TWO"), #r"\1"),
     # Wiki links with display text
-    (re.compile(r"\[\[([^\]\|]+)\|([^\]]+)\]\]"), r"\2"),
+    (re.compile(r"\[\[([^\]\|]+)\|([^\]]+)\]\]"), "THREE"),#r"\2"),
     # Replace numbers with 'anumber'
     (re.compile(lexicon.number), "anumber")
 ]
@@ -36,20 +37,21 @@ word_or_cjk = re.compile(lexicon.word + "|" + lexicon.cjk_word)
 
 class Wikitext2Words(ContentTransformer):
 
-    def __init__(self, hidden_link_namespace_names):
+    def __init__(self, hidden_link_namespace_names, CJK=False):
         forbidden_link_re = \
             r"\[\[(" + \
             "|".join(hidden_link_namespace_names).lower() + \
             r"):[^\]]+\]\]"
         self.strip_regex = re.compile(
             "|".join(strip_wikitext + [forbidden_link_re]))
-        self.replace_regexs = [(re.compile(p), r) for p, r in replace_res]
+        self.replace_regexs = replace_res #[(re.compile(p), r) for p, r in replace_res]
+        self.CJK = CJK
 
     def transform(self, content):
         """
         Converts wikitext into a cleaned up list of words.
         """
-        return list(self._extract_words(content))
+        return self._extract_words(content)
 
     @classmethod
     def from_siteinfo(cls, siteinfo, *args, **kwargs):
@@ -58,12 +60,35 @@ class Wikitext2Words(ContentTransformer):
         return cls(hidden_link_namespace_names, *args, **kwargs)
 
     def _extract_words(self, text):
+        # I tried changing the order of operations - did not work
+        # Process links and stuff.
+        for replace_regex, replacement in self.replace_regexs:
+            stripped_text = re.sub(replace_regex, replacement, text)
+
+        # Strip non-content content
+        stripped_text = re.sub(self.strip_regex, "", stripped_text.lower())
+        
+        ##########################################################
+
+        """        
         # Strip non-content content
         stripped_text = re.sub(self.strip_regex, "", text.lower())
 
         # Process links and stuff.
         for replace_regex, replacement in self.replace_regexs:
             stripped_text = re.sub(replace_regex, replacement, stripped_text)
+        """
 
+        extracted_words = []
         for match in re.finditer(word_or_cjk, stripped_text):
-            yield match.group(0)
+            extracted_words.append(match.group(0))
+
+        if self.CJK == True: 
+            joined_text = "".join(extracted_words)
+            language = cjk_tokenization.lng_decision(joined_text, lexicon.CJK_LEXICON, lng_frac_par=0.25)
+
+            for i in range(len(extracted_words))[::-1]:
+                processed_word = cjk_tokenization.CJK_tokenization(extracted_words[i], language)
+                extracted_words[i:i+1] = [word for word in processed_word]
+   
+        return extracted_words
