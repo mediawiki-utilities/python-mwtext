@@ -4,3 +4,4 @@ mwapi
 mwbase
 mwparserfromhell>=0.5,<0.6
 fasttext
+deltas >= 0.6.0, < 0.6.999
