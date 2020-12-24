@@ -4,7 +4,7 @@ from mwtext.content_transformers import Wikitext2Words
 def test_preprocessing_english():
     forbidden_link_prefixes = ['category', 'image', 'file']
 
-    wtpp = Wikitext2Words(forbidden_link_prefixes, CJK=True)
+    wtpp = Wikitext2Words(forbidden_link_prefixes, tok_strategy='CJK')
     text = """
 {{Infobox thing
  | derp = herp
@@ -27,7 +27,7 @@ def test_preprocessing_vietnamese():
         'category', 'image', 'file',
         'tập tin', 'thể loại']
 
-    wtpp = Wikitext2Words(forbidden_link_prefixes, CJK=True)
+    wtpp = Wikitext2Words(forbidden_link_prefixes, tok_strategy='CJK')
     text = """
 {{Infobox actor
 |name = George Lucas
@@ -68,7 +68,7 @@ def test_preprocessing_korean():
         'category', 'image', 'file',
         '파일', '분류', '그림']
 
-    wtpp = Wikitext2Words(forbidden_link_prefixes, CJK=True)
+    wtpp = Wikitext2Words(forbidden_link_prefixes, tok_strategy='CJK')
     text = """
 {{영화인 정보
 |이름       = 조지 루카스
@@ -120,7 +120,7 @@ def test_preprocessing_arabic():
         'category', 'image', 'file',
         'تصنيف', 'ملف', 'صورة']
 
-    wtpp = Wikitext2Words(forbidden_link_prefixes, CJK=True)
+    wtpp = Wikitext2Words(forbidden_link_prefixes, tok_strategy='CJK')
     text = """
 {{معلومات ممثل
 | الاسم              = جورج لوكاس
@@ -183,7 +183,7 @@ def test_preprocessing_japanese():
     forbidden_link_prefixes = [
         'category', 'image', 'file']
 
-    wtpp = Wikitext2Words(forbidden_link_prefixes, CJK=True)
+    wtpp = Wikitext2Words(forbidden_link_prefixes, tok_strategy='CJK')
     text = """
 {{Vertical_images_list
 |寄せ=
@@ -272,7 +272,7 @@ def test_preprocessing_chinese():
     forbidden_link_prefixes = [
         'category', 'image', 'file']
 
-    wtpp = Wikitext2Words(forbidden_link_prefixes, CJK=True)
+    wtpp = Wikitext2Words(forbidden_link_prefixes, tok_strategy='CJK')
     text = """
 '''西沟村'''，山西省[[平顺县]][[西沟乡]]的一个行政村。西沟全村面积30500亩，耕地1080亩，辖9个自然庄，660户，1932口人<ref>{{cite news |title=传承新时代纪兰精神——记平顺县西沟乡西沟村党总支书记郭雪岗 |url=https://www.sohu.com/a/339506060_99958012 |accessdate=2020-06-28 |work=搜狐_长治日报 |date=2019-09-08}}</ref>。[[中华人民共和国]]成立后很长时间内，西沟村是全国地图上唯一标出的行政村<ref name=&quot;fbfz&quot;>{{Cite web |url=http://news.ifeng.com/mainland/special/2013lianghui/yanlun/detail_2013_03/02/22662614_0.shtml |title=申纪兰：我觉得共产党还是好的 腐败分子都是混进来的，凤凰网，2013年03月02日 |access-date=2013年3月2日 |archive-url=https://web.archive.org/web/20130302163509/http://news.ifeng.com/mainland/special/2013lianghui/yanlun/detail_2013_03/02/22662614_0.shtml |archive-date=2013年3月2日 |dead-url=no }}</ref>。
 

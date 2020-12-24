@@ -36,7 +36,7 @@ word_or_cjk = re.compile(lexicon.word + "|" + lexicon.cjk_word)
 
 class Wikitext2Words(ContentTransformer):
 
-    def __init__(self, hidden_link_namespace_names, CJK=False):
+    def __init__(self, hidden_link_namespace_names, tok_strategy=None):
         forbidden_link_re = \
             r"\[\[(" + \
             "|".join(hidden_link_namespace_names).lower() + \
@@ -44,7 +44,7 @@ class Wikitext2Words(ContentTransformer):
         self.strip_regex = re.compile(
             "|".join(strip_wikitext + [forbidden_link_re]))
         self.replace_regexs = replace_res
-        self.CJK = CJK
+        self.tok_strategy = tok_strategy
 
     def transform(self, content):
         """
@@ -74,7 +74,7 @@ class Wikitext2Words(ContentTransformer):
         extracted_words = list(itertools.chain.from_iterable(extracted_words))
         extracted_words = list(filter(None, extracted_words))
 
-        if self.CJK is True:
+        if self.tok_strategy == 'CJK':
             joined_text = "".join(extracted_words)
             language = cjk_tokenization.lng_decision(
                 joined_text, lexicon.CJK_LEXICON, lng_frac_par=0.25)
