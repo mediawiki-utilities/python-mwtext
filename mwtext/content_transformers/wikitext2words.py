@@ -70,8 +70,8 @@ class Wikitext2Words(ContentTransformer):
         for match in re.finditer(word_or_cjk, stripped_text):
             extracted_words.append(match.group(0))
 
-        extracted_words = [re.split('(anumber)', word) for word in extracted_words] # noqa
-        extracted_words = list(itertools.chain.from_iterable(extracted_words))
+        extracted_words = (re.split('(anumber)', word) for word in extracted_words) # noqa
+        extracted_words = itertools.chain.from_iterable(extracted_words)
         extracted_words = list(filter(None, extracted_words))
 
         if self.tok_strategy == 'CJK':
