@@ -4,6 +4,7 @@ __pycache__/
 
 # Datasets
 datasets/
+xmldatadumps_temp/
 
 # Demo scripts
 demo_*

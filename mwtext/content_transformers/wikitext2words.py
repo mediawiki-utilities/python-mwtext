@@ -1,29 +1,18 @@
 from .content_transformer import ContentTransformer
 from . import util
 import re
+import itertools
+from deltas.tokenizers import lexicon
+from deltas.tokenizers import cjk_tokenization
 
-PLAIN_PROTO = [r'bitcoin', r'geo', r'magnet', r'mailto', r'news', r'sips?',
-               r'tel', r'urn']
-SLASHED_PROTO = [r'', r'ftp', r'ftps', r'git', r'gopher', r'https?', r'ircs?',
-                 r'mms', r'nntp', r'redis', r'sftp', r'ssh', r'svn', r'telnet',
-                 r'worldwind', r'xmpp']
-ADDRESS = r'[^\s/$.?#].[^\s]*'
-
-URL_RE = (
-    r'(' +  # noqa
-        r'(' + '|'.join(PLAIN_PROTO) + r')\:|' +  # noqa
-        r'((' + '|'.join(SLASHED_PROTO) + r')\:)?\/\/' +
-    r')' + ADDRESS
-)
-
-STRIP_WIKITEXT_REs = [
+strip_wikitext = [
     r"<!--.*?-->",  # no commented out text
     r"{{.*?}}",  # no templates
     r"&[a-z]+;",  # No entities
     r"<ref[^<>]*>[^<]*<\/ref>",  # No reference content or ref tags
     r"<[^>]*>",  # No tags, but leave the content
-    r"\[" + URL_RE + r"\]",  # No external links without display text
-    URL_RE,  # No bare external links either
+    r"\[" + lexicon.url + r"\]",  # No external links without display text
+    lexicon.url,  # No bare external links either
     r"\{\{[^\}]+\}\}",  # No templates
     r"\{\|[^\}\|]+\|\}",  # No tables
     r"(^|\n);+[^\n]+",  # Definition lists terms
@@ -31,87 +20,37 @@ STRIP_WIKITEXT_REs = [
     r"'''?"  # No bold or italics
 ]
 
-# Matches 10, 10.2, 3.123e10, 100,000,000, etc.
-NUMBER_RE = r"\b[0-9][0-9\.\,]*(e[0-9]+)?s?\b"
-
-REPLACE_REs = [
+replace_res = [
     # Replace headers with a paragraph break
     (re.compile(r"(^|\n)==+[^=]+==+"), "\n\n"),
-    # External links with display text
-    (re.compile(r"\[" + URL_RE + r"( ([^\]]+))?\]"), r"\5"),
-    #  Wiki links without display text
+    # Wiki links without display text
     (re.compile(r"\[\[([^\]\|]+)\]\]"), r"\1"),
     # Wiki links with display text
     (re.compile(r"\[\[([^\]\|]+)\|([^\]]+)\]\]"), r"\2"),
     # Replace numbers with 'anumber'
-    (re.compile(NUMBER_RE), "anumber")
+    (re.compile(lexicon.number), "anumber")
 ]
 
-PARAGRAPH_SPLIT_RE = r'(\n|\n\r|\r\n)\s*(\n|\n\r|\r\n)+'
-
-devangari_word = r'\u0901-\u0963'
-arabic_word = r'\u0601-\u061A' + \
-              r'\u061C-\u0669' + \
-              r'\u06D5-\u06EF'
-bengali_word = r'\u0980-\u09FF'
-combined_word = devangari_word + arabic_word + bengali_word
-
-WORD_RE = r'([^\W\d]|[' + combined_word + r'])' + \
-          r'[\w' + combined_word + r']*' + \
-          r'([\'’]([\w' + combined_word + r']+|(?=($|\s))))*'
-
-# Matches Chinese, Japanese and Korean characters.
-CJK_RE = (
-    r'[' +
-        r'\u4E00-\u62FF' +  # noqa Unified Ideographs
-        r'\u6300-\u77FF' +
-        r'\u7800-\u8CFF' +
-        r'\u8D00-\u9FCC' +
-        r'\u3400-\u4DFF' +  # Unified Ideographs Ext A
-        r'\U00020000-\U000215FF' +  # Unified Ideographs Ext. B
-        r'\U00021600-\U000230FF' +
-        r'\U00023100-\U000245FF' +
-        r'\U00024600-\U000260FF' +
-        r'\U00026100-\U000275FF' +
-        r'\U00027600-\U000290FF' +
-        r'\U00029100-\U0002A6DF' +
-        r'\uF900-\uFAFF' +  # Compatibility Ideographs
-        r'\U0002F800-\U0002FA1F' +  # Compatibility Ideographs Suppl.
-        r'\u3041-\u3096' +  # Hiragana
-        r'\u30A0-\u30FF' +  # Katakana
-        r'\u3400-\u4DB5' +  # Kanji
-        r'\u4E00-\u9FCB' +
-        r'\uF900-\uFA6A' +
-        r'\u2E80-\u2FD5' +  # Kanji radicals
-        r'\uFF5F-\uFF9F' +  # Katakana and Punctuation (Half Width)
-        r'\u31F0-\u31FF' +  # Miscellaneous Japanese Symbols and Characters
-        r'\u3220-\u3243' +
-        r'\u3280-\u337F'
-    r']'
-)
-WORD_OR_CJK_RE = re.compile(WORD_RE + "|" + CJK_RE)
-
-PARAGRAPH_SPLIT_RE = r'(\n|\n\r|\r\n)\s*(\n|\n\r|\r\n)+'
-
-HIDDEN_LINK_NAMESPACES = ['Category', 'Image']
+word_or_cjk = re.compile(lexicon.word + "|" + lexicon.cjk_word)
 
 
 class Wikitext2Words(ContentTransformer):
 
-    def __init__(self, hidden_link_namespace_names):
+    def __init__(self, hidden_link_namespace_names, tok_strategy=None):
         forbidden_link_re = \
             r"\[\[(" + \
             "|".join(hidden_link_namespace_names).lower() + \
             r"):[^\]]+\]\]"
         self.strip_regex = re.compile(
-            "|".join(STRIP_WIKITEXT_REs + [forbidden_link_re]))
-        self.replace_regexs = [(re.compile(p), r) for p, r in REPLACE_REs]
+            "|".join(strip_wikitext + [forbidden_link_re]))
+        self.replace_regexs = replace_res
+        self.tok_strategy = tok_strategy
 
     def transform(self, content):
         """
         Converts wikitext into a cleaned up list of words.
         """
-        return list(self._extract_words(content))
+        return self._extract_words(content)
 
     @classmethod
     def from_siteinfo(cls, siteinfo, *args, **kwargs):
@@ -127,5 +66,23 @@ class Wikitext2Words(ContentTransformer):
         for replace_regex, replacement in self.replace_regexs:
             stripped_text = re.sub(replace_regex, replacement, stripped_text)
 
-        for match in re.finditer(WORD_OR_CJK_RE, stripped_text):
-            yield match.group(0)
+        extracted_words = []
+        for match in re.finditer(word_or_cjk, stripped_text):
+            extracted_words.append(match.group(0))
+
+        extracted_words = (re.split('(anumber)', word) for word in extracted_words) # noqa
+        extracted_words = itertools.chain.from_iterable(extracted_words)
+        extracted_words = list(filter(None, extracted_words))
+
+        if self.tok_strategy == 'CJK':
+            joined_text = "".join(extracted_words)
+            language = cjk_tokenization.lng_decision(
+                joined_text, lexicon.CJK_LEXICON, lng_frac_par=0.25)
+
+            if language != 'other':
+                for i in range(len(extracted_words))[::-1]:
+                    processed_word = cjk_tokenization.CJK_tokenization(
+                                            extracted_words[i], language)
+                    extracted_words[i:i+1] = [word for word in processed_word]
+
+        return extracted_words
